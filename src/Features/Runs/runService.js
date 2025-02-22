@@ -1,24 +1,6 @@
 import API_URL from "../../API/config";
 
 // Function to get details of a specific getAllPprojects
-export async function getAllProjects() {
-  try {
-    const res = await fetch(`${API_URL}/ApiGen/Projects/allProjects`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      // Use 'include' if you need to send cookies or auth headers
-    });
-    if (!res.ok) throw new Error("Failed to retrieve projects");
-
-    const data = await res.json();
-    return data;
-  } catch (err) {
-    console.error("Error retrieving all projects:", err);
-    return [];
-  }
-}
 
 export async function getTestRunsByProject(projectName) {
   try {

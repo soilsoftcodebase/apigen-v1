@@ -1,42 +1,24 @@
-import { useState, useLayoutEffect } from "react";
+import { useState, useEffect } from "react";
 import {
-  getAllProjects,
   getTestData,
   updateTestData,
 } from "../testDataService";
-import { useLocalStorageState } from "../../../Hooks/useLocalStorageState";
 import ProjectsDropdown from "../../../Components/Global/ProjectsDropdown";
 import TestDataTableContent from "../Components/TestDataTable";
 import Loader from "../../../Components/Global/Loader";
+import { useProjects } from "../../../Contexts/ProjectContext";
 
 const TestDataPage = () => {
-  const [projects, setProjects] = useState([]);
-  const [selectedProject, setSelectedProject] = useLocalStorageState(
-    localStorage.getItem("selectedProject"),
-    "selectedProject"
-  );
+   
+  const {projects, selectedProject, setSelectedProject} = useProjects();
   const [testData, setTestData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [editRowId, setEditRowId] = useState(null);
   const [originalData, setOriginalData] = useState(null);
 
-  useLayoutEffect(() => {
-    const fetchAllProjects = async () => {
-      try {
-        setLoading(true);
-        const projects = await getAllProjects();
-        setProjects(projects || []);
-      } catch (error) {
-        console.error("Error fetching project names:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchAllProjects();
-  }, []);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (selectedProject) {
       const fetchTestData = async () => {
         try {

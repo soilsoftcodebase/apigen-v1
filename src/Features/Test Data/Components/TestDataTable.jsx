@@ -26,7 +26,7 @@ const TestDataTableContent = ({
             </tr>
           </thead>
           <tbody>
-            {testData.map((item, index) => (
+            {testData?.map((item, index) => (
               <tr
                 key={item.testDataId}
                 className={`${

@@ -170,3 +170,38 @@ export async function RunSelectedTestCase(projectName, testCaseList) {
     throw error;
   }
 }
+export async function addTestCaseToProject(projectName, testCaseData) {
+  try {
+    const res = await fetch(
+      `${API_URL}/ApiGen/Projects/${projectName}/addtestcase`,
+      {
+        method: "POST",
+        body: JSON.stringify(testCaseData),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error(`Failed to add test case to project: ${projectName}`);
+    }
+    // Return the response for further use
+  } catch (err) {
+    throw new Error("Error adding test case", err);
+  }
+}
+export async function getTestcaseData(projectName) {
+  try {
+    const res = await fetch(
+      `${API_URL}/ApiGen/Projects/${projectName}/testcasedate`
+    );
+    if (!res.ok)
+      throw Error(`Couldn't retrieve test data for project: ${projectName}`);
+
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    throw Error("Error retrieving test data", err);
+  }
+}

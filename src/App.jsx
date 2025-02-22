@@ -15,6 +15,8 @@ import RunsPage from "./Features/Runs/Pages/RunsPage";
 import PrivateRoute from "./Components/Layout/PrivateRoute";
 import TestDataPage from "./Features/Test Data/Pages/TestDataPage";
 import TestCasePage from "./Features/Tests/Pages/TestsPage";
+
+import {ProjectProvider} from "./Contexts/ProjectContext";
 // import ApiTests from "./pages/ApiTests";
 // import Performance from "./pages/Performance";
 // import TestCases from "./pages/TestCases";
@@ -36,6 +38,7 @@ function App() {
     //   </Router>
     // </Provider>
     <Provider store={store}>
+      <ProjectProvider>
       <Router>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
@@ -60,6 +63,7 @@ function App() {
           </Route>
         </Routes>
       </Router>
+      </ProjectProvider>
     </Provider>
   );
 }

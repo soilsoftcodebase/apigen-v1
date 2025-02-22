@@ -1,58 +1,22 @@
+/* eslint-disable react/prop-types */
 import { useSelector } from "react-redux";
 import { Bell, Search, User, Plus, LogOut } from "lucide-react";
 import { motion } from "framer-motion";
 
-const Header = () => {
+// Accept isCollapsed prop
+const Header = ({ isCollapsed }) => {
   const user = useSelector((state) => state.auth.user);
 
   return (
-    <header className="h-20 bg-gradient-to-r from-gray-900 to-gray-800 backdrop-blur-md border-b border-gray-200/80 fixed top-0 right-0 left-64 z-10">
+    <header
+      className={`h-20 bg-gradient-to-r from-gray-900 to-gray-800 backdrop-blur-md border-b border-gray-200/80 fixed top-0 right-0 z-10 transition-all duration-300 ease-in-out ${
+        isCollapsed ? "left-20" : "left-64"
+      }`}
+    >
       <div className="h-full px-6 flex items-center justify-between">
         <div className="flex items-center">
-          {/* <div className="relative flex-1 max-w-md">
-            <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Search tests, APIs, or reports..."
-              className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 bg-white/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-            />
-          </div> */}
-          {/* <button className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-lg hover:from-emerald-600 hover:to-teal-600 transition-all shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30">
-            <Plus className="w-4 h-4" />
-            <span>New Test</span>
-          </button> */}
           <div className="overflow-hidden text-white ">
-            {/* <motion.div
-              className="flex space-x-20 whitespace-nowrap text-lg font-semibold"
-              initial={{ x: "100%" }}
-              animate={{ x: "-100%" }}
-              transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
-            >
-              <motion.span
-                whileHover={{ scale: 1.15, color: "#ffdd57", rotate: 2 }}
-                className="mx-4 transition-all"
-              >
-                🚀 Automate API Testing
-              </motion.span>
-              <motion.span
-                whileHover={{ scale: 1.15, color: "#ffdd57", rotate: -2 }}
-                className="mx-4 transition-all"
-              >
-                ⚡ Generate, Execute, Validate
-              </motion.span>
-              <motion.span
-                whileHover={{ scale: 1.15, color: "#ffdd57", rotate: 2 }}
-                className="mx-4 transition-all"
-              >
-                🔍 Ensure Reliability & Performance
-              </motion.span>
-              <motion.span
-                whileHover={{ scale: 1.15, color: "#ffdd57", rotate: -2 }}
-                className="mx-4 transition-all"
-              >
-                💡 AI-Powered API Testing
-              </motion.span>
-            </motion.div> */}
+            {/* Add your motion div here if needed */}
           </div>
         </div>
 
@@ -65,11 +29,9 @@ const Header = () => {
           <div className="flex items-center gap-3">
             <div className="flex flex-col items-end">
               <span className="text-base font-medium text-gray-400 ">
-                {/* {user?.name} */}
                 SoilSoft User
               </span>
               <span className="text-[12px] font-normal text-gray-500 ">
-                {/* {user?.name} */}
                 user@soilsoft.ai
               </span>
             </div>

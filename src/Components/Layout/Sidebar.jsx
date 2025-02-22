@@ -20,10 +20,10 @@ import {
 } from "lucide-react";
 
 // eslint-disable-next-line react/prop-types
-const SidebarComponent = () => {
+const SidebarComponent = ({isCollapsed,setIsCollapsed}) => {
   const dispatch = useDispatch();
 
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  
   const location = useLocation();
   const navigate = useNavigate();
 

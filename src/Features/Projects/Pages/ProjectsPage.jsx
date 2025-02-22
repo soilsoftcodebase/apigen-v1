@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import PopupForm from "../components/PopupForm";
 import ProjectCard from "../Components/ProjectCards";
 import ProjectDetailsModal from "../components/ProjectDetailsModal";
@@ -9,35 +9,20 @@ import {
 } from "../projectsService";
 import { PlusCircle } from "lucide-react";
 import Button from "../../../Components/Global/Button";
+import { useProjects } from "../../../Contexts/ProjectContext";
 
 const ProjectsPage = () => {
-  const [projects, setProjects] = useState([]);
-  const [showForm, setShowForm] = useState(false);
+
+  const{loading,projects,setProjects}=useProjects();
   const [selectedProject, setSelectedProject] = useState(null);
+  const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     projectName: "",
     swaggerUrl: "",
     swaggerVersion: "",
   });
-  const [loading, setLoading] = useState(false);
-
-  // Fetch all projects on mount
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        setLoading(true);
-        const data = await getAllProjects();
-        setProjects(data || []);
-      } catch (error) {
-        console.error("Error fetching projects:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProjects();
-  }, []);
-
+  
+  
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });

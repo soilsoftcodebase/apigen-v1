@@ -2,14 +2,7 @@ import React, { useState, useMemo, useEffect, useRef } from "react";
 import * as XLSX from "xlsx";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import {
-  fetchTestCases,
-  fetchTestCaseInfo,
-  getTestCases,
-  getAllProjects,
-  RunallTestCases,
-  RunSelectedTestCase,
-} from "../testService";
+import { fetchTestCases, fetchTestCaseInfo,getTestCases, RunallTestCases, RunSelectedTestCase  } from "../testService";
 import {
   ChevronDown,
   ChevronRight,
@@ -21,33 +14,33 @@ import {
   PlayCircle,
   Download,
 } from "lucide-react";
-import AddTestCaseForm from "../Components/TestCasesTable";
-import TestCaseTable from "../Components/../Components/TestCasesTable"; // Reusable table component
-import { useLocalStorageState } from "../../../Hooks/useLocalStorageState";
+
+import AddTestCaseForm from "./AddTestCaseForm";
+import { useProjects } from "../../../Contexts/ProjectContext";
 
 const Table = () => {
+  // UI state for row expansion and hover effects
   const [expandedRows, setExpandedRows] = useState([]);
   const [hoveredRow, setHoveredRow] = useState(null);
-  const [searchEndpoint, setSearchEndpoint] = useState("");
-  const [selectedMethod, setSelectedMethod] = useState("");
-  const [selectedTestType, setSelectedTestType] = useState("");
-  const [selectedProject, setSelectedProject] = useLocalStorageState(
-    localStorage.getItem("selectedProject"),
-    "selectedProject"
-  );
+
+  // Grouped filter and pagination state
+  const [filters, setFilters] = useState({
+    searchEndpoint: "",
+    selectedMethod: "",
+    selectedTestType: "",
+    currentPage: 1,
+    pageSize: 25,
+  });
+
   const [testCaseStats, setTestCaseStats] = useState({});
-  const [pageSize, setPageSize] = useState(25);
   const [loading, setLoading] = useState(false);
-  const [projects, setProjects] = useState([]);
   const [testCases, setTestCases] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
   const [showFormPopup, setShowFormPopup] = useState(false);
   const [runningTests, setRunningTests] = useState(false);
-  const [filteredPaths, setFilteredPaths] = useState([]);
-  const [totalPages, setTotalPages] = useState(0);
   const [selectedTestCaseIds, setSelectedTestCaseIds] = useState([]);
-  const [selectAll, setSelectAll] = useState(false);
   const [selectedPayload, setSelectedPayload] = useState(null);
+
+  const { projects, selectedProject, setSelectedProject } = useProjects();
 
   const abortControllerRef = useRef(null);
   const prevSelectedProjectRef = useRef("");
@@ -59,7 +52,15 @@ const Table = () => {
     abortControllerRef.current = new AbortController();
   };
 
-  // Multiple useEffects remain as in your original code (unchanged)
+  // Compute filtered paths on the fly (instead of using state)
+  const filteredPaths = useMemo(() => {
+    if (!filters.searchEndpoint) return [];
+    return testCaseStats?.paths?.filter((path) =>
+      path.toLowerCase().includes(filters.searchEndpoint.toLowerCase())
+    ) || [];
+  }, [filters.searchEndpoint, testCaseStats]);
+
+  // Fetch data when selected project or filters change
   useEffect(() => {
     const fetchData = async () => {
       const projectName = localStorage.getItem("selectedProject");
@@ -67,14 +68,11 @@ const Table = () => {
       if (!selectedProject) return;
 
       abortPreviousRequest();
-
+      setLoading(true);
       try {
-        setLoading(true);
+        
+        // Refresh test case info if project changed
         if (prevSelectedProjectRef.current !== selectedProject) {
-          const projects = await getAllProjects({
-            signal: abortControllerRef.current.signal,
-          });
-          setProjects(projects || []);
           const testCaseInfo = await fetchTestCaseInfo(selectedProject, {
             signal: abortControllerRef.current.signal,
           });
@@ -82,139 +80,58 @@ const Table = () => {
           prevSelectedProjectRef.current = selectedProject;
         }
 
-        const testCaseData = await fetchTestCases(
+        const data = await fetchTestCases(
           selectedProject,
-          currentPage,
-          pageSize,
-          selectedMethod,
-          selectedTestType,
-          searchEndpoint,
+          filters.currentPage,
+          filters.pageSize,
+          filters.selectedMethod,
+          filters.selectedTestType,
+          filters.searchEndpoint,
           { signal: abortControllerRef.current.signal }
         );
-        setTotalPages(testCaseData.totalPages);
-        setTestCases(testCaseData.data || []);
+        setTestCases(data || []);
       } catch (error) {
-        console.error("Failed to load test cases:", error);
-      } finally {
+        if (error.name !== "AbortError") {
+          console.error("Error initializing test data", error);
+          toast.error("Failed to fetch test data. Please try again.");
+        }     
+      }finally{
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [
-    selectedProject,
-    currentPage,
-    pageSize,
-    searchEndpoint,
-    selectedMethod,
-    selectedTestType,
-  ]);
+  }, [selectedProject,filters,setSelectedProject]);
 
-  useEffect(() => {
-    const fetchAllProjects = async () => {
-      try {
-        const projects = await getAllProjects();
-        setProjects(projects || []);
-      } catch (error) {
-        console.log("Failed to load projects. Please try again later.", error);
-      }
-    };
-    fetchAllProjects();
-  }, []);
-
-  useEffect(() => {
-    const initializeData = async () => {
-      if (!selectedProject) return;
-      try {
-        setLoading(true);
-        const testCaseInfo = await fetchTestCaseInfo(selectedProject);
-        setTestCaseStats(testCaseInfo);
-        const testCaseData = await fetchTestCases(selectedProject);
-        console.log(testCaseData);
-        setTotalPages(testCaseData.totalPages);
-        setTestCases(testCaseData.data || []);
-      } catch (error) {
-        console.error("Error initializing test data", error);
-        toast.error("Failed to fetch test data. Please try again.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    initializeData();
-  }, [selectedProject]);
-
-  useEffect(() => {
-    const testcasesdata = async () => {
-      if (!selectedProject) return;
-      try {
-        setLoading(true);
-        setTestCases([]);
-        const testCaseInfo = await fetchTestCases(
-          selectedProject,
-          currentPage,
-          pageSize,
-          selectedMethod,
-          selectedTestType,
-          searchEndpoint
-        );
-        console.log(testCaseInfo);
-        setTotalPages(testCaseInfo.totalPages);
-        setTestCases(testCaseInfo.data || []);
-      } catch (error) {
-        console.error("Error initializing test data", error);
-        toast.error("Failed to fetch test data. Please try again.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    testcasesdata();
-  }, [
-    currentPage,
-    pageSize,
-    searchEndpoint,
-    selectedMethod,
-    selectedTestType,
-    totalPages,
-  ]);
-
-  const handleSearchChange = (e) => {
-    const value = e.target.value;
-    setSearchEndpoint(value);
-    setTestCases([]);
-    if (value) {
-      const filtered = testCaseStats?.paths?.filter((path) =>
-        path.toLowerCase().includes(value.toLowerCase())
-      );
-      setFilteredPaths(filtered);
-    } else {
-      setFilteredPaths([]);
-    }
+  // Update a filter and reset the page to 1
+  const handleFilterChange = (field, value) => {
+    setFilters((prev) => ({ ...prev, [field]: value, currentPage: 1 }));
+    setTestCases([]); // Clear current list to show loader if needed
   };
 
   const handleSelectPath = (path) => {
-    setSearchEndpoint(path);
-    setCurrentPage(1);
-    setTestCases([]);
+    handleFilterChange("searchEndpoint", path);
   };
 
   const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
+    setFilters((prev) => ({ ...prev, currentPage: newPage }));
     setTestCases([]);
-    setSelectAll(false);
   };
 
   const handleProjectChange = (e) => {
-    setSelectedProject(e.target.value);
-    localStorage.setItem("selectedProject", e.target.value);
-    setCurrentPage(1);
+    const project = e.target.value;
+    setSelectedProject(project);
+    localStorage.setItem("selectedProject", project);
+    setFilters({
+      searchEndpoint: "",
+      selectedMethod: "",
+      selectedTestType: "",
+      currentPage: 1,
+      pageSize: 25,
+    });
     setTestCaseStats({});
     setTestCases([]);
-    setSelectedMethod("");
-    setSelectedTestType("");
-    setSearchEndpoint("");
-    setFilteredPaths([]);
-    setSelectAll(false);
+    setSelectedTestCaseIds([]);
   };
 
   const handleRunTestCases = async () => {
@@ -223,7 +140,7 @@ const Table = () => {
       if (selectedProject && selectedTestCaseIds.length === 0) {
         await RunallTestCases(selectedProject);
       } else {
-        RunSelectedTestCase(selectedProject, selectedTestCaseIds);
+        await RunSelectedTestCase(selectedProject, selectedTestCaseIds);
       }
     } catch (error) {
       console.error("Error running test cases", error);
@@ -233,6 +150,7 @@ const Table = () => {
     }
   };
 
+  // Download all test cases as an Excel file
   const downloadAllTestCases = async () => {
     if (!selectedProject) {
       toast.success("Please select a project first.", {
@@ -244,15 +162,14 @@ const Table = () => {
 
     try {
       let allTestCases = [];
-      let currentPage = 1;
-      let totalPages = 1;
-
+      let current = 1;
+      let total = 1;
       do {
         const data = await getTestCases(selectedProject, 0, 0);
         allTestCases = allTestCases.concat(data.testCases || []);
-        totalPages = data.totalPages || 1;
-        currentPage++;
-      } while (currentPage <= totalPages);
+        total = data.totalPages || 1;
+        current++;
+      } while (current <= total);
 
       if (allTestCases.length === 0) {
         toast.warn("No test cases found for the selected project.", {
@@ -280,36 +197,35 @@ const Table = () => {
     }
   };
 
+  // Filter test cases on the client side (if needed)
   const filteredData = useMemo(() => {
-    return testCases.filter((row) => {
+    return testCases?.data?.filter((row) => {
       const matchesEndpoint = row.endpoint
         .toLowerCase()
-        .includes(searchEndpoint.toLowerCase());
-      const matchesMethod = !selectedMethod || row.method === selectedMethod;
+        .includes(filters.searchEndpoint.toLowerCase());
+      const matchesMethod = !filters.selectedMethod || row.method === filters.selectedMethod;
       const matchesTestType =
-        !selectedTestType ||
-        row.testCases.some((tc) => tc.type === selectedTestType);
+        !filters.selectedTestType ||
+        row.testCases.some((tc) => tc.type === filters.selectedTestType);
       return matchesEndpoint && matchesMethod && matchesTestType;
     });
-  }, [searchEndpoint, selectedMethod, selectedTestType, testCases]);
+  }, [filters.searchEndpoint, filters.selectedMethod, filters.selectedTestType, testCases]);
 
   const stats = useMemo(() => {
     const methodCounts = testCaseStats?.methods?.reduce((acc, method) => {
-      acc[method] = filteredData.filter((row) => row.method === method).length;
+      acc[method] = filteredData?.filter((row) => row.method === method).length;
       return acc;
     }, {});
     return {
-      total: filteredData.length,
-      filtered: filteredData.length,
+      total: filteredData?.length,
+      filtered: filteredData?.length,
       methods: methodCounts,
     };
   }, [filteredData, testCaseStats]);
 
   const toggleRow = (rowId) => {
     setExpandedRows((prev) =>
-      prev.includes(rowId)
-        ? prev.filter((id) => id !== rowId)
-        : [...prev, rowId]
+      prev.includes(rowId) ? prev.filter((id) => id !== rowId) : [...prev, rowId]
     );
   };
 
@@ -332,42 +248,42 @@ const Table = () => {
   };
 
   const handleSelectTestCase = (id) => {
-    setSelectedTestCaseIds((prevSelected) =>
-      prevSelected.includes(id)
-        ? prevSelected.filter((testCaseId) => testCaseId !== id)
-        : [...prevSelected, id]
+    setSelectedTestCaseIds((prev) =>
+      prev.includes(id)
+        ? prev.filter((testCaseId) => testCaseId !== id)
+        : [...prev, id]
     );
   };
 
   const handleSelectAllTestCases = (checked, testCases) => {
     if (checked) {
-      let newSelectedIds = testCases.map((testCase) => testCase.id);
-      setSelectedTestCaseIds((prevSelected) => [
-        ...new Set([...prevSelected, ...newSelectedIds]),
-      ]);
+      const newSelectedIds = testCases.map((testCase) => testCase.id);
+      setSelectedTestCaseIds((prev) => Array.from(new Set([...prev, ...newSelectedIds])));
     } else {
-      let newSelectedIds = testCases.map((testCase) => testCase.id);
-      setSelectedTestCaseIds((prevSelected) =>
-        prevSelected.filter((id) => !newSelectedIds.includes(id))
-      );
+      const newSelectedIds = testCases.map((testCase) => testCase.id);
+      setSelectedTestCaseIds((prev) => prev.filter((id) => !newSelectedIds.includes(id)));
     }
   };
 
+  // Instead of a separate state, compute if all test cases are selected
+  const allTestCaseIds = useMemo(() => {
+    return testCases?.data?.flatMap((row) => row.testCases.map((tc) => tc.id));
+  }, [testCases]);
+
+  const isSelectAll = useMemo(() => {
+    return allTestCaseIds?.length > 0 && allTestCaseIds?.every((id) => selectedTestCaseIds.includes(id));
+  }, [allTestCaseIds, selectedTestCaseIds]);
+
   const handleSelectAll = (checked) => {
     if (checked) {
-      let allTestCaseIds = testCases.flatMap((row) =>
-        row.testCases.map((testCase) => testCase.id)
-      );
       setSelectedTestCaseIds(allTestCaseIds);
     } else {
       setSelectedTestCaseIds([]);
     }
-    setSelectAll(checked);
   };
 
   return (
     <div className="w-full overflow-hidden rounded-xl shadow-lg border border-gray-200">
-      {/* Main Header */}
       {runningTests && (
         <div className="fixed inset-0 z-50 flex flex-col justify-center items-center bg-black bg-opacity-50">
           <div className="bg-white p-10 rounded-lg shadow-2xl transform scale-95 hover:scale-100 transition-transform duration-300 ease-out w-96 h-96 flex flex-col items-center justify-center">
@@ -378,14 +294,13 @@ const Table = () => {
           </div>
         </div>
       )}
+
       <div className="bg-gradient-to-r from-cyan-950 to-sky-900 px-8 py-8">
         <div className="flex items-center justify-between mb-6">
           <div className="flex flex-col items-center justify-start">
             <div className="flex items-center space-x-2 w-full">
               <TestTubeDiagonal className="w-8 h-8 text-white mb-2" />
-              <h2 className="text-3xl font-bold text-white mb-1">
-                Generated Test Cases
-              </h2>
+              <h2 className="text-3xl font-bold text-white mb-1">Generated Test Cases</h2>
               {selectedProject && (
                 <div className="relative group top-0 right-0">
                   <div className="w-20 h-12 bg-white/10 rounded-full border-blue-400/20 backdrop-blur-sm flex flex-col justify-center items-center shadow-sm ml-5">
@@ -414,16 +329,10 @@ const Table = () => {
                 }}
               >
                 <option value="" disabled>
-                  {projects.length > 0
-                    ? "Choose a project"
-                    : "No projects available"}
+                  {projects.length > 0 ? "Choose a project" : "No projects available"}
                 </option>
                 {projects.map((project, index) => (
-                  <option
-                    key={project.id || index}
-                    value={project.id}
-                    className="text-gray-800"
-                  >
+                  <option key={project.projectId || index} value={project.projectName} className="text-gray-800">
                     {project.projectName}
                   </option>
                 ))}
@@ -472,65 +381,59 @@ const Table = () => {
               </div>
             )}
           </div>
-          <div className="grid grid-cols-3 gap-6">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search endpoints..."
-                value={searchEndpoint}
-                onChange={handleSearchChange}
-                className="w-full h-12 bg-white/10 border border-blue-400/20 rounded-xl pl-12 pr-4 text-lg text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-white/30"
-              />
-              {filteredPaths && (
-                <ul className="absolute z-10 w-full bg-white/10 rounded-xl mt-1 shadow-lg">
-                  {filteredPaths.map((path) => (
-                    <li
-                      key={path}
-                      onClick={() => handleSearchChange(path)}
-                      className="p-2 bg-white hover:bg-blue-500 hover:text-white cursor-pointer"
-                    >
-                      {path}
-                    </li>
-                  ))}
-                </ul>
-              )}
-              <Search className="absolute left-4 top-3.5 w-5 h-5 text-blue-300" />
-              <div className="grid grid-cols-2 gap-2 mb-6">
-                <div className="px-2 py-1 bg-white/10 rounded-lg backdrop-blur-sm mt-4 pl-4">
-                  <span className="text-white font-medium text-sm">
-                    {testCaseStats.totalEndpointsCount}
-                  </span>
-                  <span className="text-blue-100 ml-2">Total Endpoints</span>
-                </div>
-                <div className="px-2 py-1 bg-white/10 rounded-lg backdrop-blur-sm mt-4 pl-4">
-                  <span className="text-white font-medium text-sm">
-                    Searched
-                  </span>
-                </div>
+        </div>
+        <div className="grid grid-cols-3 gap-6">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search endpoints..."
+              value={filters.searchEndpoint}
+              onChange={(e) => handleFilterChange("searchEndpoint", e.target.value)}
+              className="w-full h-12 bg-white/10 border border-blue-400/20 rounded-xl pl-12 pr-4 text-lg text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-white/30"
+            />
+            {filteredPaths.length > 0 && (
+              <ul className="absolute z-10 w-full bg-white/10 rounded-xl mt-1 shadow-lg">
+                {filteredPaths.map((path) => (
+                  <li
+                    key={path}
+                    onClick={() => handleSelectPath(path)}
+                    className="p-2 bg-white hover:bg-blue-500 hover:text-white cursor-pointer"
+                  >
+                    {path}
+                  </li>
+                ))}
+              </ul>
+            )}
+            <Search className="absolute left-4 top-3.5 w-5 h-5 text-blue-300" />
+            <div className="grid grid-cols-2 gap-2 mb-6">
+              <div className="px-2 py-1 bg-white/10 rounded-lg backdrop-blur-sm mt-4 pl-4">
+                <span className="text-white font-medium text-sm">
+                  {testCaseStats.totalEndpointsCount}
+                </span>
+                <span className="text-blue-100 ml-2">Total Endpoints</span>
+              </div>
+              <div className="px-2 py-1 bg-white/10 rounded-lg backdrop-blur-sm mt-4 pl-4">
+                <span className="text-white font-medium text-sm"></span>
+                <span className="text-blue-100 ml-2">Searched</span>
               </div>
             </div>
-            <div>
-              <select
-                value={selectedMethod}
-                onChange={(e) => {
-                  setSelectedMethod(e.target.value);
-                  setCurrentPage(1);
-                  setTestCases([]);
-                  setFilteredPaths([]);
-                }}
-                className="h-12 bg-white/10 border border-blue-400/20 w-full rounded-xl px-4 text-lg text-white focus:outline-none focus:ring-2 focus:ring-white/30"
-              >
-                <option value="" disabled>
-                  {testCaseStats?.methods?.length > 0
-                    ? "Choose a Method"
-                    : "No Methods available"}
+          </div>
+          <div>
+            <select
+              value={filters.selectedMethod}
+              onChange={(e) => handleFilterChange("selectedMethod", e.target.value)}
+              className="h-12 bg-white/10 border border-blue-400/20 w-full rounded-xl px-4 text-lg text-white focus:outline-none focus:ring-2 focus:ring-white/30"
+            >
+              <option value="" disabled>
+                {testCaseStats?.methods?.length > 0 ? "Choose a Method" : "No Methods available"}
+              </option>
+              {testCaseStats?.methods?.map((method) => (
+                <option key={method} value={method} className="text-black">
+                  {method}
                 </option>
-                {testCaseStats?.methods?.map((method) => (
-                  <option className="text-black" key={method} value={method}>
-                    {method}
-                  </option>
-                ))}
-              </select>
+              ))}
+            </select>
+            <div>
               <div className="flex items-center space-x-2 mt-4">
                 {testCaseStats?.methods?.map((method) => (
                   <div
@@ -543,70 +446,219 @@ const Table = () => {
                   >
                     <span className="text-sm font-semibold">
                       {method}-{testCaseStats.totalMethodCounts?.[method] ?? 0}
-                      <span className="text-sm text-white/70 ml-1">
-                        {`(${stats?.methods?.[method] ?? 0})`}
+                      <span className="text-sm text-white/70 font-bold ml-1">
+                        ({stats?.methods?.[method] ?? 0})
                       </span>
                     </span>
                   </div>
                 ))}
               </div>
             </div>
-            <select
-              value={selectedTestType}
-              onChange={(e) => {
-                setSelectedTestType(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="h-12 bg-white/10 border border-blue-400/20 rounded-xl px-4 text-lg text-white focus:outline-none focus:ring-2 focus:ring-white/30"
-            >
-              <option value="" disabled>
-                {testCaseStats?.methods?.length > 0
-                  ? "Choose a Test Type"
-                  : "No Test types available"}
-              </option>
-              {testCaseStats?.testTypes?.map((type) => (
-                <option className="text-black" key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
           </div>
+          <select
+            value={filters.selectedTestType}
+            onChange={(e) => handleFilterChange("selectedTestType", e.target.value)}
+            className="h-12 bg-white/10 border border-blue-400/20 rounded-xl px-4 text-lg text-white focus:outline-none focus:ring-2 focus:ring-white/30"
+          >
+            <option value="" disabled>
+              {testCaseStats?.methods?.length > 0 ? "Choose a Test Type" : "No Test types available"}
+            </option>
+            {testCaseStats?.testTypes?.map((type) => (
+              <option key={type} value={type} className="text-black">
+                {type}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
-
       {selectedProject && (
-        <TestCaseTable
-          testCases={filteredData}
-          expandedRows={expandedRows}
-          hoveredRow={hoveredRow}
-          toggleRow={toggleRow}
-          handleSelectAllTestCases={handleSelectAllTestCases}
-          selectedTestCaseIds={selectedTestCaseIds}
-          getMethodColor={getMethodColor}
-          setSelectedPayload={setSelectedPayload}
-          handleSelectTestCase={handleSelectTestCase}
-          selectAll={selectAll}
-          handleSelectAll={handleSelectAll}
-        />
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-200">
+                <th className="px-8 py-4 text-left text-sm font-semibold uppercase text-gray-800">
+                  <input
+                    type="checkbox"
+                    className="w-5 h-5 text-sky-600 border-gray-300 rounded focus:ring-blue-200 focus:ring-2 transition-all duration-300"
+                    checked={isSelectAll}
+                    onChange={(e) => handleSelectAll(e.target.checked)}
+                  />
+                </th>
+                <th className="px-6 py-4 text-left w-16"></th>
+                <th className="px-6 py-4 text-left text-base font-semibold uppercase text-gray-800">Endpoint</th>
+                <th className="px-6 py-4 text-left text-base font-semibold uppercase text-gray-800">Method</th>
+                <th className="px-6 py-4 text-left text-base font-semibold uppercase text-gray-800">Test Count</th>
+                <th className="px-6 py-4 text-left text-base font-semibold uppercase text-gray-800">Last Generated</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {testCases?.data?.map((row) => (
+                <React.Fragment key={row.id}>
+                  <tr
+                    className={`transition-colors ${
+                      hoveredRow === row.id ? "bg-gray-50" : "bg-white"
+                    }`}
+                    onMouseEnter={() => setHoveredRow(row.id)}
+                    onMouseLeave={() => setHoveredRow(null)}
+                  >
+                    <td className="px-8 py-4">
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          className="w-5 h-5 text-sky-600 border-gray-300 rounded focus:ring-blue-200 focus:ring-2 transition-all duration-300"
+                          onChange={(e) => handleSelectAllTestCases(e.target.checked, row.testCases)}
+                          checked={row.testCases.every((testCase) =>
+                            selectedTestCaseIds.includes(testCase.id)
+                          )}
+                        />
+                      </div>
+                    </td>
+                    <td className="px-0 py-4">
+                      <button
+                        onClick={() => toggleRow(row.id)}
+                        className={`p-2 rounded-lg transition-colors ${
+                          hoveredRow === row.id ? "bg-gray-200" : "hover:bg-gray-100"
+                        }`}
+                      >
+                        {expandedRows.includes(row.id) ? (
+                          <ChevronDown className="w-5 h-5 text-gray-800" />
+                        ) : (
+                          <ChevronRight className="w-5 h-5 text-gray-800" />
+                        )}
+                      </button>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center">
+                        <span className="text-base font-semibold text-gray-900">
+                          {row.endpoint}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`px-4 py-2 rounded-lg text-sm font-medium border ${getMethodColor(row.method)}`}>
+                        {row.method}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-base text-gray-800">{row.testCount}</td>
+                    <td className="px-6 py-4 text-base text-gray-800">{row.lastRun}</td>
+                  </tr>
+                  {expandedRows.includes(row.id) && (
+                    <tr>
+                      <td colSpan={6} className="px-8 py-6 bg-gray-50">
+                        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                          <div className="bg-gradient-to-r from-cyan-950 to-sky-900 px-6 py-4 border-b border-gray-200">
+                            <div className="flex justify-between items-center">
+                              <h3 className="text-lg font-semibold text-white">Test Cases</h3>
+                              <span className="text-sm text-gray-100">{row.testCases.length} cases</span>
+                            </div>
+                          </div>
+                          <div className="overflow-x-auto">
+                            <table className="w-full">
+                              <thead>
+                                <tr className="bg-gray-50">
+                                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800">
+                                    <input
+                                      type="checkbox"
+                                      onChange={(e) => handleSelectAllTestCases(e.target.checked, row.testCases)}
+                                      checked={row.testCases.every((testCase) =>
+                                        selectedTestCaseIds.includes(testCase.id)
+                                      )}
+                                      className="w-5 h-5 text-sky-600 border-gray-300 rounded focus:ring-blue-200 focus:ring-2 transition-all duration-300"
+                                    />
+                                  </th>
+                                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800">ID</th>
+                                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800">Name</th>
+                                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800">Request URL</th>
+                                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800">Payload</th>
+                                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800">Response</th>
+                                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800">Type</th>
+                                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800">Steps</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {row.testCases.map((testCase) => (
+                                  <tr
+                                    key={testCase.id}
+                                    className="border-t border-gray-100 hover:bg-gray-50 transition-colors"
+                                  >
+                                    <td className="px-6 py-4 text-sm font-medium text-gray-700">
+                                      <input
+                                        type="checkbox"
+                                        checked={selectedTestCaseIds.includes(testCase.id)}
+                                        onChange={() => handleSelectTestCase(testCase.id)}
+                                        className="w-5 h-5 text-sky-600 border-gray-300 rounded focus:ring-blue-200 focus:ring-2 transition-all duration-300"
+                                      />
+                                    </td>
+                                    <td className="px-6 py-4 text-sm text-gray-700">{testCase.id}</td>
+                                    <td className="px-6 py-4 text-sm text-gray-700">{testCase.name}</td>
+                                    <td className="px-6 py-4">
+                                      <button
+                                        onClick={() => setSelectedPayload(testCase.requesturl)}
+                                        className="text-blue-600 text-sm underline hover:text-blue-800"
+                                      >
+                                        View URL
+                                      </button>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                      <button
+                                        onClick={() => setSelectedPayload(testCase.payload)}
+                                        className="text-blue-600 text-sm underline hover:text-blue-800"
+                                      >
+                                        View Payload
+                                      </button>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                      <span className="px-3 py-1 rounded-lg text-sm font-medium text-gray-700">
+                                        {testCase.responsecode}
+                                      </span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                      <span className="text-sm font-medium px-3 py-1 rounded-lg text-gray-700">
+                                        {testCase.type}
+                                      </span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                      <div className="flex items-center space-x-2">
+                                        <span className="text-sm text-gray-700">{testCase.steps}</span>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
+      
       {loading && (
-        <div className="flex items-center justify-center h-64">Loading....</div>
-      )}
+        <div className="flex items-center justify-center h-64">Loading....</div>)
+      }
       {!selectedProject && (
         <div className="flex items-center justify-center h-64 text-xl text-gray-500">
           Please Select the project !!
         </div>
       )}
-      {!(testCases?.length <= 0) && (
+      {testCases?.data?.length > 0 && (
         <div className="flex justify-between items-center px-8 py-4 bg-gray-50 border-t border-gray-200">
           <div className="flex items-center space-x-2">
             <span className="text-sm text-gray-800">Items per page:</span>
             <select
-              onChange={(e) => {
-                setPageSize(Number(e.target.value));
-                setCurrentPage(1);
-              }}
-              value={pageSize}
+              onChange={(e) =>
+                setFilters((prev) => ({
+                  ...prev,
+                  pageSize: Number(e.target.value),
+                  currentPage: 1,
+                }))
+              }
+              value={filters.pageSize}
               className="h-8 bg-white border border-gray-300 rounded-lg px-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-200"
             >
               <option value={10}>10</option>
@@ -617,20 +669,20 @@ const Table = () => {
           </div>
           <div className="flex items-center space-x-2">
             <button
-              onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
-              disabled={currentPage === 1}
+              onClick={() => handlePageChange(Math.max(filters.currentPage - 1, 1))}
+              disabled={filters.currentPage === 1}
               className="h-8 w-8 flex items-center justify-center bg-white border border-gray-300 rounded-lg text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               &lt;
             </button>
             <span className="text-sm text-gray-800">
-              Page {currentPage} of {Number(totalPages)}
+              Page {filters.currentPage} of {Number(testCases.totalPages || 0)}
             </span>
             <button
               onClick={() =>
-                handlePageChange(Math.min(currentPage + 1, Number(totalPages)))
+                handlePageChange(Math.min(filters.currentPage + 1, Number(testCases.totalPages || 0)))
               }
-              disabled={currentPage === Number(totalPages)}
+              disabled={filters.currentPage === Number(testCases.totalPages || 0)}
               className="h-8 w-8 flex items-center justify-center bg-white border border-gray-300 rounded-lg text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               &gt;
@@ -638,14 +690,14 @@ const Table = () => {
           </div>
         </div>
       )}
-      {testCases?.length <= 0 && selectedProject && !loading && (
+      {testCases?.data?.length <= 0 && selectedProject && !loading && (
         <div className="flex justify-center items-center px-8 py-4 bg-gray-50 border-t h-64 border-gray-200">
           No testcases found...
         </div>
       )}
       {selectedPayload && (
         <div
-          className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 overflow-auto hide-scrollbar z-50"
+          className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50"
           onClick={() => setSelectedPayload(null)}
         >
           <div className="bg-white p-6 rounded shadow-lg w-1/2 max-h-[90vh] overflow-auto">
