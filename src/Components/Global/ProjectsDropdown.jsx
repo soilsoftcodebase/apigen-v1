@@ -1,31 +1,74 @@
 /* eslint-disable react/prop-types */
-const ProjectsDropdown = ({ projects, selectProjectName, onProjectChange }) => {
+
+const ProjectsDropdown = ({
+  projects,
+  selectedProjectId,
+  onProjectChange,
+  // Add a variant prop to control styling
+  variant = "default",
+}) => {
+  // Base classes for all variants
+  const baseClasses = `
+    appearance-none 
+    w-full 
+    rounded-lg 
+    transition-all 
+    duration-300 
+    ease-in-out 
+    shadow-sm
+  `;
+
+  // Define multiple variant styles
+  const variants = {
+    default: `
+      p-3 
+      border 
+      border-gray-300 
+      bg-white 
+      text-gray-700 
+      font-medium 
+      focus:outline-none 
+      focus:ring-1 
+      focus:ring-blue-500
+    `,
+    testcasetableVariant: `
+      h-10 
+      bg-white 
+      border 
+      border-blue-400/20 
+      w-full 
+      px-4 
+      pr-24 
+      text-lg 
+      text-gray-700 
+      focus:outline-none 
+      focus:ring-2 
+      focus:ring-white/30 
+      truncate
+    `,
+  };
+
   return (
     <div className="relative inline-block w-full sm:w-auto max-w-[300px]">
-      {/* {!selectProjectName && (
-        <div className="mb-1">
-          <span className="text-sm text-blue-600 font-semibold animate-pulse">
-            Let's get started! Please select a project.
-          </span>
-        </div>
-      )} */}
       <select
         id="project-select"
         name="project"
-        value={selectProjectName || ""}
+        value={selectedProjectId || ""}
         onChange={onProjectChange}
-        className="appearance-none w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-700 font-medium focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all duration-300 ease-in-out shadow-sm"
+        // Merge base classes with the chosen variant
+        className={`${baseClasses} ${variants[variant]}`}
       >
         <option value="" disabled>
           {projects.length > 0 ? "Choose a project" : "No projects available"}
         </option>
         {projects.map((project, index) => (
-          <option key={project.id || index} value={project.id}>
+          <option key={project.id || index} value={project.projectName}>
             {project.projectName}
           </option>
         ))}
       </select>
-      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 ">
+      {/* Chevron icon (pointer-events-none so it doesn't block clicks) */}
+      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
         <svg
           className="h-5 w-5 text-gray-400"
           xmlns="http://www.w3.org/2000/svg"

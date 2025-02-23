@@ -15,8 +15,10 @@ import RunsPage from "./Features/Runs/Pages/RunsPage";
 import PrivateRoute from "./Components/Layout/PrivateRoute";
 import TestDataPage from "./Features/Test Data/Pages/TestDataPage";
 import TestCasePage from "./Features/Tests/Pages/TestsPage";
+import PerformanceTestPage from "./Features/Settings copy/Pages/PerformanceTestPage";
+import SettingsPage from "./Features/Settings/Pages/SettingsPage";
 
-import {ProjectProvider} from "./Contexts/ProjectContext";
+import { ProjectProvider } from "./Contexts/ProjectContext";
 // import ApiTests from "./pages/ApiTests";
 // import Performance from "./pages/Performance";
 // import TestCases from "./pages/TestCases";
@@ -39,30 +41,33 @@ function App() {
     // </Provider>
     <Provider store={store}>
       <ProjectProvider>
-      <Router>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
+        <Router>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
 
-          <Route
-            path="/"
-            element={
-              <PrivateRoute>
-                <Layout />
-              </PrivateRoute>
-            }
-          >
-            <Route index element={<Navigate to="/dashboard" replace />} />
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="projects" element={<ProjectsPage />} />
-            <Route path="runs" element={<RunsPage />} />
-            <Route path="testdata" element={<TestDataPage />} />
-            <Route path="tests" element={<TestCasePage />} />
-
-            {/* <Route path="performance" element={<Performance />} />
+            <Route
+              path="/"
+              element={
+                <PrivateRoute>
+                  <Layout />
+                </PrivateRoute>
+              }
+            >
+              <Route index element={<Navigate to="/dashboard" replace />} />
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="projects" element={<ProjectsPage />} />
+              <Route path="runs" element={<RunsPage />} />
+              <Route path="testdata" element={<TestDataPage />} />
+              <Route
+                path="performance-tests"
+                element={<PerformanceTestPage />}
+              />
+              <Route path="settings" element={<SettingsPage />} />
+              {/* <Route path="performance" element={<Performance />} />
             <Route path="test-cases" element={<TestCases />} /> */}
-          </Route>
-        </Routes>
-      </Router>
+            </Route>
+          </Routes>
+        </Router>
       </ProjectProvider>
     </Provider>
   );

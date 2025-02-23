@@ -1,22 +1,24 @@
 import { useState, useEffect } from "react";
-import {
-  getTestData,
-  updateTestData,
-} from "../testDataService";
+import { getTestData, updateTestData } from "../testDataService";
 import ProjectsDropdown from "../../../Components/Global/ProjectsDropdown";
 import TestDataTableContent from "../Components/TestDataTable";
 import Loader from "../../../Components/Global/Loader";
 import { useProjects } from "../../../Contexts/ProjectContext";
+import { BeatLoader } from "react-spinners";
 
 const TestDataPage = () => {
-   
-  const {projects, selectedProject, setSelectedProject} = useProjects();
+  const { projects, selectedProject, setSelectedProject } = useProjects();
   const [testData, setTestData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [editRowId, setEditRowId] = useState(null);
   const [originalData, setOriginalData] = useState(null);
+  const [selectedProjectId, setSelectedProjectId] = useState("");
 
+  // Sync local selectedProjectId with the global selectedProject value
+  useEffect(() => {
+    setSelectedProjectId(selectedProject || "");
+  }, [selectedProject]);
 
   useEffect(() => {
     if (selectedProject) {
@@ -88,7 +90,7 @@ const TestDataPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/90">
       <main className="container mx-auto px-8 py-8">
         <div className="container mx-auto p-6 max-w-full">
-          <h1 className="text-3xl font-bold mb-2 text-start  text-sky-800 animate-fade-in">
+          <h1 className="text-3xl font-bold mb-2 text-start text-sky-800 animate-fade-in">
             Your Test Data
           </h1>
           <p className="text-gray-600">
@@ -98,13 +100,17 @@ const TestDataPage = () => {
           <div className="flex justify-between items-center mb-10">
             <ProjectsDropdown
               projects={projects}
-              selectedProject={selectedProject}
-              onProjectChange={(e) => setSelectedProject(e.target.value)}
+              selectedProjectId={selectedProjectId}
+              onProjectChange={(e) => {
+                setSelectedProjectId(e.target.value);
+                setSelectedProject(e.target.value);
+              }}
             />
           </div>
 
           {loading ? (
-            <Loader message="Loading ... " />
+            // <Loader message="Loading ... " />
+            <BeatLoader />
           ) : testData.length > 0 ? (
             <TestDataTableContent
               testData={testData}

@@ -1,4 +1,4 @@
-import React, { useState, useCallback ,useEffect} from "react";
+import React, { useState, useCallback, useEffect } from "react";
 //import { ClipboardIcon } from "@heroicons/react/20/solid";
 import {
   getTestRunsByProject,
@@ -8,6 +8,9 @@ import {
 import { toast } from "react-toastify";
 import * as XLSX from "xlsx";
 import { useProjects } from "../../../Contexts/ProjectContext";
+import ProjectsDropdown from "../../../Components/Global/ProjectsDropdown";
+import { BeatLoader } from "react-spinners";
+import { Delete, DeleteIcon, Download, Trash2 } from "lucide-react";
 
 const RunTestCaseTable = () => {
   const [filteredRunData, setFilteredRunData] = useState([]);
@@ -19,8 +22,14 @@ const RunTestCaseTable = () => {
   const [deleteLoading, setDeleteLoading] = useState(false); // For delete confirmation popup
   const [showPopup, setShowPopup] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const {projects,selectedProject:selectProjectName,setSelectedProject:setSelectedProjectName} = useProjects();
-  
+  const [selectedProjectId, setSelectedProjectId] = useState("");
+
+  const {
+    projects,
+    selectedProject: selectProjectName,
+    setSelectedProject: setSelectedProjectName,
+  } = useProjects();
+
   useEffect(() => {
     if (selectProjectName) {
       const fetchData = async () => {
@@ -37,8 +46,7 @@ const RunTestCaseTable = () => {
       fetchData();
     }
   }, [selectProjectName]); // Added `projects` dependency
-  
-  
+
   const handleDelete = async (projectId) => {
     setIsDeleting(true); // Indicate deletion is in progress
     try {
@@ -104,7 +112,6 @@ const RunTestCaseTable = () => {
     }
   };
 
-
   const fetchTestCases = useCallback(async (selectProjectName) => {
     if (!selectProjectName) return;
     setLoading(true);
@@ -118,24 +125,20 @@ const RunTestCaseTable = () => {
     }
   }, []);
 
-
-
   const handleProjectChange = async (e) => {
-    const projectName =  e.target.value; // Get the selected project name from the dropdown
+    const projectName = e.target.value; // Get the selected project name from the dropdown
     const project = projects.find((p) => p.projectName === projectName); // Find the corresponding project object
     setSelectedProject(project);
     setSelectedProjectName(projectName);
     localStorage.setItem("selectedProject", projectName);
-     // Update the state with the full project object
-  
-    if (selectProjectName !==null) {
+    // Update the state with the full project object
+
+    if (selectProjectName !== null) {
       setFilteredRunData([]); // Clear filtered data if no project is selected
     } else {
       await fetchTestCases(selectProjectName); // Fetch test cases for the selected project
     }
-
   };
-
 
   const toggleRow = (runId) => {
     setExpandedRows((prevState) => ({
@@ -244,7 +247,7 @@ const RunTestCaseTable = () => {
 
   return (
     <div className="container mx-auto p-6 max-w-full ">
-      <h1 className="text-3xl font-bold mb-6 text-start px-2 text-sky-800 animate-fade-in ">
+      <h1 className="text-3xl font-bold mb-2 text-start text-sky-800 animate-fade-in ">
         Executed Test Cases
       </h1>
       <p className="text-base text-gray-600">
@@ -252,29 +255,14 @@ const RunTestCaseTable = () => {
       </p>
       <div className="w-full h-px bg-gray-300 my-6" />
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
-        <select
-          id="project-select"
-          name="project"
-          value={selectProjectName || ""}
-          onChange={handleProjectChange}
-          className="p-2 border rounded w-full sm:w-auto focus:ring-2 focus:ring-blue-500 font-semibold truncate"
-          style={{
-            maxWidth: "300px", // Set a fixed maximum width for the dropdown
-            overflow: "hidden", // Prevent overflowing text
-            textOverflow: "ellipsis", // Add ellipsis for long text
-            whiteSpace: "nowrap", // Prevent text from wrapping to the next line
+        <ProjectsDropdown
+          projects={projects}
+          selectedProjectId={selectedProjectId}
+          onProjectChange={(e) => {
+            setSelectedProjectId(e.target.value);
+            setSelectedProject(e.target.value);
           }}
-        >
-          <option value="" disabled>
-            {projects.length > 0 ? "Choose a project" : "No projects available"}
-          </option>
-          {projects.map((project, index) => (
-            <option key={project.id || index} value={project.id}>
-              {project.projectName}
-            </option>
-          ))}
-        </select>
-         
+        />
 
         {/* Positioned Button */}
         {filteredRunData.length > 0 && (
@@ -332,20 +320,21 @@ const RunTestCaseTable = () => {
 
       {loading ? (
         <div className="flex justify-center items-center h-64">
-          <div className="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center space-y-4">
-            <div className="w-16 h-16 border-t-4 border-b-4 border-blue-500 rounded-full animate-spin"></div>
+          <div className=" flex flex-col items-center space-y-4">
+            <BeatLoader />
+            {/* <div className="w-16 h-16 border-t-4 border-b-4 border-blue-500 rounded-full animate-spin"></div> */}
             <p className="text-lg font-bold text-gray-700">
-              Loading Test Runs...
+              Loading your previous Test Runs...
             </p>
           </div>
         </div>
       ) : selectProjectName ? (
         filteredRunData.length > 0 ? (
-          <div className="rounded-lg shadow min-w-full">
+          <div className="rounded-lg shadow min-w-full overflow-hidden">
             <table className="min-w-full table-auto bg-white border-collapse">
-              <thead className="bg-gradient-to-r from-cyan-950 to-sky-900 text-white border-b border-gray-300">
+              <thead className="bg-gradient-to-r from-gray-800 to-gray-800 text-white border-b border-gray-300">
                 <tr>
-                  <th className="p-3 text-center border-r border-gray-200">
+                  <th className="p-3 text-center border-r border-gray-200 ">
                     <button
                       onClick={toggleAllRows}
                       className="text-white focus:outline-none"
@@ -404,61 +393,31 @@ const RunTestCaseTable = () => {
                       <td className="p-3 text-center font-bold text-red-600 border-r border-gray-200">
                         {run.failed}
                       </td>
-                      <td className="p-3 text-center font-bold text-blue-600 border-r border-gray-200">
+                      <td className="p-3 text-center font-bold  border-r border-gray-200">
                         {run.blocked}
                       </td>
-                      <td className="p-3 font-bold text-center">
+                      <td className="p-3 font-bold text-center text-blue-600">
                         {run.skipped}
                       </td>
                       <td className="p-3 text-center">
                         <div className="flex justify-center items-center space-x-4">
                           <div className="relative group">
-                            <svg
+                            <Download
                               className="w-[24px] h-[24px] text-gray-800 dark:text-green-700 mr-5"
-                              aria-hidden="true"
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="24"
-                              height="24"
-                              fill="none"
-                              viewBox="0 0 24 24"
                               onClick={() => handleDownloadRun(run)}
-                            >
-                              <path
-                                stroke="currentColor"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="1.5"
-                                d="M12 13V4M7 14H5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-2m-1-5-4 5-4-5m9 8h.01"
-                              />
-                            </svg>
+                            />
                             <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden w-max px-3 py-1 bg-gray-800 text-white text-sm rounded shadow-lg group-hover:block">
                               Download Run
                             </div>
                           </div>
                           <div className="relative group">
-                            <svg
+                            <Trash2
                               className="w-[24px] h-[24px] text-gray-800 dark:text-red-700 cursor-pointer"
-                              aria-hidden="true"
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="24"
-                              height="24"
-                              fill="none"
-                              viewBox="0 0 24 24"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleDeleteTestRun(run.testRunId);
                               }}
-                              // Pass the testRunId dynamically
-                            >
-                              <path
-                                stroke="currentColor"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="1.5"
-                                d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"
-                              />
-                            </svg>
-
+                            />
                             <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden w-max px-3 py-1 bg-gray-800 text-white text-sm rounded shadow-lg group-hover:block">
                               Delete Run
                             </div>
@@ -471,7 +430,7 @@ const RunTestCaseTable = () => {
                         <td colSpan="10" className="p-2 bg-gray-50">
                           <div className="overflow-auto  rounded-lg shadow-inner bg-white">
                             <table className="w-full bg-white border border-gray-300">
-                              <thead className="bg-gradient-to-r from-cyan-700 to-sky-800 text-white">
+                              <thead className="bg-gradient-to-r from-gray-600 to-gray-700 text-white">
                                 <tr>
                                   <th className="p-2 text-center border-r border-gray-300">
                                     Test ID
@@ -539,9 +498,8 @@ const RunTestCaseTable = () => {
                                           title="Copy URL"
                                           aria-label="Copy URL"
                                         >
-                                         {/* { <ClipboardIcon className="w-4 h-4 inline-block" />} */}
+                                          {/* { <ClipboardIcon className="w-4 h-4 inline-block" />} */}
                                         </div>
-
                                       </div>
                                     </td>
 
@@ -575,7 +533,7 @@ const RunTestCaseTable = () => {
                                           title="Copy Payload"
                                           aria-label="Copy Payload"
                                         >
-                                         {/* { <ClipboardIcon className="w-4 h-4 inline-block" />} */}
+                                          {/* { <ClipboardIcon className="w-4 h-4 inline-block" />} */}
                                         </div>
                                       </div>
                                     </td>
