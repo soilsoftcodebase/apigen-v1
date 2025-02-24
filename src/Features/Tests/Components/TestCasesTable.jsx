@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect, useRef } from "react";
 import * as XLSX from "xlsx";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ProjectsDropdown from "../../../Components/Global/ProjectsDropdown";
 import { fetchTestCases, fetchTestCaseInfo } from "../Services/apiGenServices";
 import {
   ChevronDown,
@@ -40,7 +41,7 @@ const Table = () => {
   const [selectedTestCaseIds, setSelectedTestCaseIds] = useState([]);
   const [selectedPayload, setSelectedPayload] = useState(null);
 
-  const { projects, selectedProject, setSelectedProject } = useProjects();
+  const { selectedProject , setSelectedProject } = useProjects();
 
   const abortControllerRef = useRef(null);
   const prevSelectedProjectRef = useRef("");
@@ -60,17 +61,19 @@ const Table = () => {
     ) || [];
   }, [filters.searchEndpoint, testCaseStats]);
 
+  useEffect(() => {
+    setSelectedProject(selectedProject || "");
+  }, [selectedProject,setSelectedProject]);
+
   // Fetch data when selected project or filters change
   useEffect(() => {
     const fetchData = async () => {
       const projectName = localStorage.getItem("selectedProject");
       setSelectedProject(projectName);
       if (!selectedProject) return;
-
       abortPreviousRequest();
       setLoading(true);
-      try {
-        
+      try {      
         // Refresh test case info if project changed
         if (prevSelectedProjectRef.current !== selectedProject) {
           const testCaseInfo = await fetchTestCaseInfo(selectedProject, {
@@ -118,10 +121,10 @@ const Table = () => {
     setTestCases([]);
   };
 
-  const handleProjectChange = (e) => {
+  const handleProjectChange = async (e) => {
     const project = e.target.value;
     setSelectedProject(project);
-    localStorage.setItem("selectedProject", project);
+    //localStorage.setItem("selectedProject", project);
     setFilters({
       searchEndpoint: "",
       selectedMethod: "",
@@ -133,6 +136,7 @@ const Table = () => {
     setTestCases([]);
     setSelectedTestCaseIds([]);
   };
+
 
   const handleRunTestCases = async () => {
     try {
@@ -314,30 +318,11 @@ const Table = () => {
                 </div>
               )}
             </div>
-            <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
-              <select
-                id="project-select"
-                name="project"
-                value={selectedProject || ""}
-                onChange={handleProjectChange}
-                className="h-8 bg-transparent border border-blue-400/20 w-full rounded-lg px-2 pr-24 text-lg text-white focus:outline-none focus:ring-2 focus:ring-white/30 truncate"
-                style={{
-                  maxWidth: "300px",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                <option value="" disabled>
-                  {projects.length > 0 ? "Choose a project" : "No projects available"}
-                </option>
-                {projects.map((project, index) => (
-                  <option key={project.projectId || index} value={project.projectName} className="text-gray-800">
-                    {project.projectName}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <ProjectsDropdown
+            onProjectChange={(e) => {
+            handleProjectChange(e);
+          }}
+        />
           </div>
           <div className="flex items-center space-x-4">
             {selectedProject && (

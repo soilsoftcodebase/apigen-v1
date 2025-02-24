@@ -7,7 +7,7 @@ import { useProjects } from "../../../Contexts/ProjectContext";
 import { BeatLoader } from "react-spinners";
 
 const TestDataPage = () => {
-  const { projects, selectedProject, setSelectedProject } = useProjects();
+  const {  selectedProject, setSelectedProject } = useProjects();
   const [testData, setTestData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
@@ -99,12 +99,7 @@ const TestDataPage = () => {
           <div className="w-full h-px bg-gray-300 my-6" />
           <div className="flex justify-between items-center mb-10">
             <ProjectsDropdown
-              projects={projects}
-              selectedProjectId={selectedProjectId}
-              onProjectChange={(e) => {
-                setSelectedProjectId(e.target.value);
-                setSelectedProject(e.target.value);
-              }}
+              onProjectChange={(e) => setSelectedProject(e.target.value)}
             />
           </div>
 

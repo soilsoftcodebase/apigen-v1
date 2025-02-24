@@ -1,8 +1,6 @@
 /* eslint-disable react/prop-types */
-
+import {useProjects} from "../../Contexts/ProjectContext";
 const ProjectsDropdown = ({
-  projects,
-  selectedProjectId,
   onProjectChange,
   // Add a variant prop to control styling
   variant = "default",
@@ -48,12 +46,14 @@ const ProjectsDropdown = ({
     `,
   };
 
+  const {  projects, selectedProject } = useProjects();
+  console.log(selectedProject);
   return (
     <div className="relative inline-block w-full sm:w-auto max-w-[300px]">
       <select
         id="project-select"
         name="project"
-        value={selectedProjectId || ""}
+        value={selectedProject || ""}
         onChange={onProjectChange}
         // Merge base classes with the chosen variant
         className={`${baseClasses} ${variants[variant]}`}
@@ -62,7 +62,7 @@ const ProjectsDropdown = ({
           {projects.length > 0 ? "Choose a project" : "No projects available"}
         </option>
         {projects.map((project, index) => (
-          <option key={project.id || index} value={project.projectName}>
+          <option key={project.projectId || index} value={project.projectName}>
             {project.projectName}
           </option>
         ))}

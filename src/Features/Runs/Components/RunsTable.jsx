@@ -256,11 +256,8 @@ const RunTestCaseTable = () => {
       <div className="w-full h-px bg-gray-300 my-6" />
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
         <ProjectsDropdown
-          projects={projects}
-          selectedProjectId={selectedProjectId}
           onProjectChange={(e) => {
-            setSelectedProjectId(e.target.value);
-            setSelectedProject(e.target.value);
+            handleProjectChange(e);
           }}
         />
 
