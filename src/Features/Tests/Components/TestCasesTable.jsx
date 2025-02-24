@@ -61,19 +61,14 @@ const Table = () => {
     ) || [];
   }, [filters.searchEndpoint, testCaseStats]);
 
-  useEffect(() => {
-    setSelectedProject(selectedProject || "");
-  }, [selectedProject,setSelectedProject]);
-
   // Fetch data when selected project or filters change
   useEffect(() => {
     const fetchData = async () => {
-      const projectName = localStorage.getItem("selectedProject");
-      setSelectedProject(projectName);
       if (!selectedProject) return;
       abortPreviousRequest();
       setLoading(true);
-      try {      
+      try {
+        
         // Refresh test case info if project changed
         if (prevSelectedProjectRef.current !== selectedProject) {
           const testCaseInfo = await fetchTestCaseInfo(selectedProject, {
@@ -121,10 +116,11 @@ const Table = () => {
     setTestCases([]);
   };
 
-  const handleProjectChange = async (e) => {
+  const handleProjectChange = (e) => {
     const project = e.target.value;
+    console.log(project);
     setSelectedProject(project);
-    //localStorage.setItem("selectedProject", project);
+    localStorage.setItem("selectedProject", project);
     setFilters({
       searchEndpoint: "",
       selectedMethod: "",

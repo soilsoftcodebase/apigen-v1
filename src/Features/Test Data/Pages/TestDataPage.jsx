@@ -104,8 +104,13 @@ const TestDataPage = () => {
           </div>
 
           {loading ? (
-            // <Loader message="Loading ... " />
+            <div className=" flex flex-col items-center space-y-4 h-64">
             <BeatLoader />
+            {/* <div className="w-16 h-16 border-t-4 border-b-4 border-blue-500 rounded-full animate-spin"></div> */}
+            <p className="text-lg font-bold text-gray-700">
+              Loading your Test Data...
+            </p>
+          </div>
           ) : testData.length > 0 ? (
             <TestDataTableContent
               testData={testData}

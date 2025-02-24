@@ -10,7 +10,7 @@ import * as XLSX from "xlsx";
 import { useProjects } from "../../../Contexts/ProjectContext";
 import ProjectsDropdown from "../../../Components/Global/ProjectsDropdown";
 import { BeatLoader } from "react-spinners";
-import { Delete, DeleteIcon, Download, Trash2 } from "lucide-react";
+import { Download, Trash2 } from "lucide-react";
 
 const RunTestCaseTable = () => {
   const [filteredRunData, setFilteredRunData] = useState([]);
@@ -19,11 +19,9 @@ const RunTestCaseTable = () => {
   const [expandedContent, setExpandedContent] = useState(null);
   const [selectedProject, setSelectedProject] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [deleteLoading, setDeleteLoading] = useState(false); // For delete confirmation popup
+  //const [deleteLoading, setDeleteLoading] = useState(false); // For delete confirmation popup
   const [showPopup, setShowPopup] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [selectedProjectId, setSelectedProjectId] = useState("");
-
   const {
     projects,
     selectedProject: selectProjectName,
@@ -87,7 +85,7 @@ const RunTestCaseTable = () => {
       return;
     }
 
-    setDeleteLoading(true); // Start the loader
+    //setDeleteLoading(true); // Start the loader
 
     console.log(testRunId);
     try {
@@ -108,36 +106,30 @@ const RunTestCaseTable = () => {
         theme: "light",
       });
     } finally {
-      setDeleteLoading(false); // Stop the loader
+      //setDeleteLoading(false); // Stop the loader
     }
   };
 
-  const fetchTestCases = useCallback(async (selectProjectName) => {
-    if (!selectProjectName) return;
-    setLoading(true);
-    try {
-      const data = await getTestRunsByProject(selectProjectName);
-      setFilteredRunData(data || []);
-    } catch (error) {
-      console.log("Failed to load test cases. Please try again later.", error);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  // const fetchTestCases = useCallback(async (selectProjectName) => {
+  //   if (!selectProjectName) return;
+  //   setLoading(true);
+  //   try {
+  //     const data = await getTestRunsByProject(selectProjectName);
+  //     setFilteredRunData(data || []);
+  //   } catch (error) {
+  //     console.log("Failed to load test cases. Please try again later.", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }, []);
 
   const handleProjectChange = async (e) => {
     const projectName = e.target.value; // Get the selected project name from the dropdown
-    const project = projects.find((p) => p.projectName === projectName); // Find the corresponding project object
+    const project = projects.find((p) => p.projectName === projectName);
+    localStorage.setItem("selectedProject", projectName);
+    // Find the corresponding project object
     setSelectedProject(project);
     setSelectedProjectName(projectName);
-    localStorage.setItem("selectedProject", projectName);
-    // Update the state with the full project object
-
-    if (selectProjectName !== null) {
-      setFilteredRunData([]); // Clear filtered data if no project is selected
-    } else {
-      await fetchTestCases(selectProjectName); // Fetch test cases for the selected project
-    }
   };
 
   const toggleRow = (runId) => {

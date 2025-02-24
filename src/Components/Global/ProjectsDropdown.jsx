@@ -47,13 +47,12 @@ const ProjectsDropdown = ({
   };
 
   const {  projects, selectedProject } = useProjects();
-  console.log(selectedProject);
   return (
     <div className="relative inline-block w-full sm:w-auto max-w-[300px]">
       <select
         id="project-select"
         name="project"
-        value={selectedProject || ""}
+        value={selectedProject}
         onChange={onProjectChange}
         // Merge base classes with the chosen variant
         className={`${baseClasses} ${variants[variant]}`}

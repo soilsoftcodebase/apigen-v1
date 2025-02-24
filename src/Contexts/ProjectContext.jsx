@@ -16,6 +16,10 @@ function ProjectProvider ({ children })  {
         
         const data = await getAllProjects();
         setProjects(data || []);
+        const storedProject=localStorage.getItem("selectedProject")
+        if (storedProject) {
+          setSelectedProject(storedProject);
+        }
 
       } catch (error) {
         console.error("Failed to fetch projects:", error);

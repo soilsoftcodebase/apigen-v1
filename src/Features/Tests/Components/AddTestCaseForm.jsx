@@ -133,7 +133,7 @@ const AddTestCaseForm = ({ selectedProject, onClose, onTestCaseAdded }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col justify-center items-center bg-black bg-opacity-50 overflow-none">
+    <div className="fixed inset-0 z-50 flex flex-col justify-center items-center bg-black/50 bg-opacity-50 overflow-none">
       <div className="flex items-center justify-between p-4  border-b rounded-t-lg  border-gray-200 sticky top-0 bg-white z-10  w-[50%]">
         <h3 className="text-xl font-bold text-gray-800">Add New Test Case</h3>
         <button

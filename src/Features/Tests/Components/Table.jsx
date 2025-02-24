@@ -3,7 +3,6 @@ import React, {
   useMemo,
   useEffect,
   useRef,
-  useCallback,
 } from "react";
 import * as XLSX from "xlsx";
 import { toast } from "react-toastify";
@@ -27,10 +26,13 @@ import {
   Download,
 } from "lucide-react";
 
+import Loader from "../../../Components/Global/Loader";
+
 import AddTestCaseForm from "./AddTestCaseForm";
 import { useProjects } from "../../../Contexts/ProjectContext";
 import ProjectsDropdown from "../../../Components/Global/ProjectsDropdown";
 import { BeatLoader } from "react-spinners";
+
 
 // ====================================================
 // Table Component - Optimized & Enhanced for Readability
@@ -55,12 +57,11 @@ const Table = () => {
   const [runningTests, setRunningTests] = useState(false);
   const [selectedTestCaseIds, setSelectedTestCaseIds] = useState([]);
   const [selectedPayload, setSelectedPayload] = useState(null);
-  const [selectedProjectId, setSelectedProjectId] = useState("");
 
   // =============================
   // Context & Refs
   // =============================
-  const { projects, selectedProject, setSelectedProject } = useProjects();
+  const { selectedProject, setSelectedProject } = useProjects();
   const abortControllerRef = useRef(null);
   const prevSelectedProjectRef = useRef("");
 
@@ -133,10 +134,7 @@ const Table = () => {
   // =============================
   useEffect(() => {
     const fetchData = async () => {
-      const projectName = localStorage.getItem("selectedProject");
-      setSelectedProject(projectName);
       if (!selectedProject) return;
-
       abortPreviousRequest();
       setLoading(true);
       try {
@@ -327,7 +325,12 @@ const Table = () => {
   // Render JSX
   // =============================
   return (
-    <div className="w-full overflow-hidden rounded-xl shadow-lg border border-gray-200">
+    <div className="w-full overflow-hidden rounded-xl shadow-lg border border-gray-200 relative">
+      {/* Loader */}
+      {/* {loading && (
+        <BeatLoader/>
+      )} */}
+
       {/* Running tests modal */}
       {runningTests && (
         <div className="fixed inset-0 z-50 flex flex-col justify-center items-center bg-black bg-opacity-50">
@@ -369,12 +372,7 @@ const Table = () => {
               {/* Projects Dropdown (left-aligned) */}
               <div className="flex items-center ml-12">
                 <ProjectsDropdown
-                  projects={projects}
-                  selectedProjectId={selectedProjectId}
-                  onProjectChange={(e) => {
-                    setSelectedProjectId(e.target.value);
-                    setSelectedProject(e.target.value);
-                  }}
+                  onProjectChange={(e)=>handleProjectChange(e)}
                   variant="testcasetableVariant"
                 />
               </div>
@@ -775,12 +773,14 @@ const Table = () => {
       )}
 
       {/* Loader / No Data Display */}
-      {loading && (
-        <div className="flex items-center justify-center h-64 ">
-          <BeatLoader color="#444444" />
-          {/* <p className="text-sm">Your Test Cases are Loading!</p> */}
-        </div>
-      )}
+          <div className=" flex flex-col items-center justify-center space-y-4 h-64">
+            <BeatLoader />
+            {/* <div className="w-16 h-16 border-t-4 border-b-4 border-blue-500 rounded-full animate-spin"></div> */}
+            <p className="text-lg font-bold text-gray-700">
+              Loading your previous Testcases...
+            </p>
+          </div>
+
       {!selectedProject && (
         <div className="flex items-center justify-center h-64 text-xl text-gray-500">
           Please Select the project !!
@@ -893,3 +893,4 @@ const Table = () => {
 };
 
 export default Table;
+

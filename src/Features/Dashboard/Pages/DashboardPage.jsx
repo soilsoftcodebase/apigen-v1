@@ -33,7 +33,7 @@ const Dashboard = () => {
     };
 
     fetchData();
-  }, []);
+  },[]);
 
   return (
     <div className="container mx-auto px-16 py-8 max-w-full bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
