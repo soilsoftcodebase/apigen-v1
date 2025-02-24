@@ -168,7 +168,7 @@ const Table = () => {
     };
 
     fetchData();
-  }, [selectedProject, filters, setSelectedProject]);
+  }, [selectedProject, filters]);
 
   // =============================
   // Event Handlers
@@ -326,11 +326,6 @@ const Table = () => {
   // =============================
   return (
     <div className="w-full overflow-hidden rounded-xl shadow-lg border border-gray-200 relative">
-      {/* Loader */}
-      {/* {loading && (
-        <BeatLoader/>
-      )} */}
-
       {/* Running tests modal */}
       {runningTests && (
         <div className="fixed inset-0 z-50 flex flex-col justify-center items-center bg-black bg-opacity-50">
@@ -773,6 +768,7 @@ const Table = () => {
       )}
 
       {/* Loader / No Data Display */}
+      {loading && (
           <div className=" flex flex-col items-center justify-center space-y-4 h-64">
             <BeatLoader />
             {/* <div className="w-16 h-16 border-t-4 border-b-4 border-blue-500 rounded-full animate-spin"></div> */}
@@ -780,7 +776,7 @@ const Table = () => {
               Loading your previous Testcases...
             </p>
           </div>
-
+      )}
       {!selectedProject && (
         <div className="flex items-center justify-center h-64 text-xl text-gray-500">
           Please Select the project !!
