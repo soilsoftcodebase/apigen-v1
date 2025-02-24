@@ -57,6 +57,7 @@ function App() {
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="projects" element={<ProjectsPage />} />
               <Route path="runs" element={<RunsPage />} />
+              <Route path="tests" element={<TestCasePage />} />
               <Route path="testdata" element={<TestDataPage />} />
               <Route
                 path="performance-tests"
