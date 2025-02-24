@@ -1,6 +1,6 @@
+@import url("https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,200..800;1,200..800&display=swap");
 @import "tailwindcss";
 /* @import url("https://fonts.googleapis.com/css2?family=Liter&display=swap"); */
-@import url("https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,200..800;1,200..800&display=swap");
 
 body {
   font-family: "Atkinson", sans-serif;

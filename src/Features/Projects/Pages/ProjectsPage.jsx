@@ -1,7 +1,7 @@
 import { useState } from "react";
-import PopupForm from "../components/PopupForm";
+import PopupForm from "../Components/PopupForm";
 import ProjectCard from "../Components/ProjectCards";
-import ProjectDetailsModal from "../components/ProjectDetailsModal";
+import ProjectDetailsModal from "../Components/ProjectDetailsModal";
 import {
   getAllProjects,
   createProject,
@@ -12,8 +12,7 @@ import Button from "../../../Components/Global/Button";
 import { useProjects } from "../../../Contexts/ProjectContext";
 
 const ProjectsPage = () => {
-
-  const{loading,projects,setProjects}=useProjects();
+  const { loading, projects, setProjects } = useProjects();
   const [selectedProject, setSelectedProject] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
@@ -21,8 +20,7 @@ const ProjectsPage = () => {
     swaggerUrl: "",
     swaggerVersion: "",
   });
-  
-  
+
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
