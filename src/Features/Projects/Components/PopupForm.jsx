@@ -10,7 +10,7 @@ import {
   createProjectWithFile,
 } from "../projectsService";
 
-import { useLocalStorageState } from "../../../Hooks/useLocalStorageState";
+// import { useLocalStorageState } from "../../../Hooks/useLocalStorageState";
 const PopupForm = ({ setShowForm }) => {
   const navigate = useNavigate();
 
@@ -27,10 +27,10 @@ const PopupForm = ({ setShowForm }) => {
   const [inputMode, setInputMode] = useState("swagger"); // 'swagger' or 'json'
   const [jsonFile, setJsonFile] = useState(null);
   const [submitAction, setSubmitAction] = useState(null); // Tracks the action: 'save' or 'saveAndGenerate'
-  const [selectedProject, setSelectedProject] = useLocalStorageState(
-    null,
-    "selectedProject"
-  );
+  // const [selectedProject, setSelectedProject] = useLocalStorageState(
+  //   null,
+  //   "selectedProject"
+  // );
   const handleFormSubmit = async (e) => {
     e.preventDefault(); // Prevent default form submission
     if (submitAction === "save") {
@@ -136,7 +136,7 @@ const PopupForm = ({ setShowForm }) => {
           ...swaggerFormData,
         });
         console.log("Swagger Form Data", swaggerFormData);
-        setSelectedProject(swaggerFormData.projectName);
+        // setSelectedProject(swaggerFormData.projectName);
       } else if (inputMode === "json") {
         if (!jsonFile) {
           toast.error("Please upload a valid JSON file.");
@@ -150,7 +150,7 @@ const PopupForm = ({ setShowForm }) => {
         formData.append("SwaggerFile", jsonFile);
 
         await createProjectWithFile(formData);
-        setSelectedProject(jsonFormData.projectName);
+        // setSelectedProject(jsonFormData.projectName);
         console.log("JSON Form Data with File", jsonFormData);
       }
 
@@ -158,7 +158,7 @@ const PopupForm = ({ setShowForm }) => {
       onClose();
     } catch (error) {
       console.error("Error saving project:", error);
-      toast.error(`Error: ${error.message || "Failed to save project"}`);
+      toast.error(`Error: ${error.message && "Failed to save project"}`);
     } finally {
       setLoading(false);
     }
@@ -173,7 +173,7 @@ const PopupForm = ({ setShowForm }) => {
         await saveAndGenerateTestCases({
           ...swaggerFormData,
         });
-        setSelectedProject(swaggerFormData.projectName);
+        // setSelectedProject(swaggerFormData.projectName);
         console.log("Swagger Form Data", swaggerFormData);
       } else if (inputMode === "json") {
         if (!jsonFile) {
@@ -188,7 +188,7 @@ const PopupForm = ({ setShowForm }) => {
         formData.append("SwaggerFile", jsonFile);
 
         await saveAndGenerateTestCasesWithFile(formData);
-        setSelectedProject(jsonFormData.projectName);
+        // setSelectedProject(jsonFormData.projectName);
         console.log("JSON Form Data with File", jsonFormData);
       }
 

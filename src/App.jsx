@@ -19,6 +19,8 @@ import PerformanceTestPage from "./Features/Settings copy/Pages/PerformanceTestP
 import SettingsPage from "./Features/Settings/Pages/SettingsPage";
 
 import { ProjectProvider } from "./Contexts/ProjectContext";
+import { ToastContainer } from "react-toastify";
+
 // import ApiTests from "./pages/ApiTests";
 // import Performance from "./pages/Performance";
 // import TestCases from "./pages/TestCases";
@@ -68,6 +70,17 @@ function App() {
             <Route path="test-cases" element={<TestCases />} /> */}
             </Route>
           </Routes>
+          <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            closeOnClick
+            pauseOnHover
+            draggable
+            pauseOnFocusLoss
+            theme="colored"
+            style={{ marginTop: "25px" }} // Add margin to top
+          />
         </Router>
       </ProjectProvider>
     </Provider>
