@@ -3,13 +3,14 @@ import PopupForm from "../Components/PopupForm";
 import ProjectCard from "../Components/ProjectCards";
 import ProjectDetailsModal from "../Components/ProjectDetailsModal";
 import {
-  getAllProjects,
   createProject,
   generateTestCases,
+  deleteProjectById,
 } from "../projectsService";
 import { PlusCircle } from "lucide-react";
 import Button from "../../../Components/Global/Button";
 import { useProjects } from "../../../Contexts/ProjectContext";
+import { toast } from "react-toastify";
 
 const ProjectsPage = () => {
   const { loading, projects, setProjects } = useProjects();
@@ -21,32 +22,32 @@ const ProjectsPage = () => {
     swaggerVersion: "",
   });
 
+  // Handles input changes
   const handleFormChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // Opens the project creation form
   const handleCreateProject = () => {
     setShowForm(true);
   };
 
+  // Handles project creation
   const handleSaveProject = async () => {
     try {
       if (!formData.projectName.trim()) {
-        alert("Project name cannot be empty.");
+        toast.error("Project name cannot be empty.");
         return;
       }
 
-      const updatedProjects = await getAllProjects();
-      const projectExists = updatedProjects.some(
+      // Check if project name already exists
+      const projectExists = projects.some(
         (project) =>
           project.projectName.trim().toLowerCase() ===
           formData.projectName.trim().toLowerCase()
       );
       if (projectExists) {
-        alert(
-          "A project with this name already exists. Please choose another name."
-        );
+        toast.error("A project with this name already exists.");
         return;
       }
 
@@ -57,34 +58,46 @@ const ProjectsPage = () => {
       };
 
       const newProject = await createProject(saveProjectDto);
-      setProjects([...projects, newProject]);
+      setProjects([...projects, newProject]); // Update state
       setShowForm(false);
-      setFormData({
-        projectName: "",
-        swaggerUrl: "",
-        swaggerVersion: "",
-      });
-      alert(`Project '${formData.projectName}' created successfully.`);
+      setFormData({ projectName: "", swaggerUrl: "", swaggerVersion: "" });
+
+      toast.success(`Project '${formData.projectName}' created successfully.`);
     } catch (error) {
-      alert(`Error creating project: ${error.message}`);
-      console.error("Error creating project:", error);
+      toast.error(`Error creating project: ${error.message}`);
     }
   };
 
+  // Handles deleting a project
+  const handleDeleteProject = async (projectId) => {
+    if (!window.confirm("Are you sure you want to delete this project?")) return;
+
+    try {
+      await deleteProjectById(projectId);
+      setProjects(projects.filter((project) => project.projectId !== projectId)); // Update UI
+      toast.success("Project deleted successfully!");
+    } catch (error) {
+      toast.error("Failed to delete project.");
+    }
+  };
+
+  // Opens project details modal
   const handleCardClick = (project) => {
     setSelectedProject(project);
   };
 
+  // Closes project details modal
   const closeModal = () => {
     setSelectedProject(null);
   };
 
+  // Handles test case generation
   const handleGenerateTestCases = async (projectName) => {
     try {
       await generateTestCases(projectName);
-      alert(`Test cases generated successfully for project: ${projectName}`);
+      toast.success(`Test cases generated successfully for ${projectName}.`);
     } catch (error) {
-      alert(`Error generating test cases: ${error.message}`);
+      toast.error(`Error generating test cases: ${error.message}`);
     }
   };
 
@@ -126,8 +139,9 @@ const ProjectsPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {projects.map((project) => (
           <ProjectCard
-            key={project.projectId || project.projectName}
+            key={project.projectId}
             project={project}
+            onDelete={handleDeleteProject}
             onClick={() => handleCardClick(project)}
           />
         ))}
