@@ -1,73 +1,53 @@
 /* eslint-disable react/prop-types */
-import { Folder, Trash2 } from "lucide-react";
-import { useState } from "react";
-import { deleteProjectById } from "../projectsService"; // Ensure this service function exists
-import { toast } from "react-toastify";
 
-const ProjectCard = ({ project, onDelete, onClick }) => {
-  const [deleteLoading, setDeleteLoading] = useState(false);
+import { X, FileText } from "lucide-react";
+import Button from "../../../Components/Global/Button";
 
-  const handleDelete = async (e) => {
-    e.stopPropagation(); // Prevent triggering card click
-
-    if (!window.confirm(`Are you sure you want to delete "${project.projectName}"?`)) return;
-
-    setDeleteLoading(true);
-    try {
-      await deleteProjectById(project.projectId);
-      onDelete(project.projectId); // Notify parent to update UI
-      toast.success("Project deleted successfully!", {
-        autoClose: 4000,
-        theme: "light",
-      });
-    } catch (error) {
-      console.error("Error deleting project:", error);
-      toast.error(error.message || "Failed to delete the project.", {
-        autoClose: 4000,
-        theme: "light",
-      });
-    } finally {
-      setDeleteLoading(false);
-    }
-  };
-
+const ProjectDetailsModal = ({ project, onClose, onGenerateTestCases }) => {
   return (
     <div
-      className="bg-white p-6 rounded-xl shadow-lg transform hover:-translate-y-2 hover:shadow-2xl transition duration-300 cursor-pointer relative"
-      onClick={onClick}
+      className="fixed inset-0 flex justify-center items-center bg-black/60 bg-opacity-50 z-50"
+      onClick={onClose}
     >
-      <div className="flex items-center mb-4">
-        <Folder className="w-6 h-6 text-blue-500 mr-2" />
-        <h3 className="text-lg font-semibold text-blue-700 break-words" style={{ maxWidth: "90%" }}>
-          {project.projectName}
-        </h3>
-      </div>
-
-      {/* DELETE BUTTON (🗑️ Trash Icon) */}
-      <button
-        className="absolute top-4 right-4 text-red-500 hover:text-red-700 z-10"
-        onClick={handleDelete}
-        disabled={deleteLoading}
+      <div
+        className="bg-white w-3/4 max-w-lg p-6 rounded shadow-lg relative"
+        onClick={(e) => e.stopPropagation()}
       >
-        {deleteLoading ? "Deleting..." : <Trash2 className="w-5 h-5" />}
-      </button>
-
-      <div className="text-sm text-gray-600 mb-4">
-        <span className="bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
-          Swagger {project.swaggerVersion}
-        </span>
+        <button
+          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+          onClick={onClose}
+        >
+          <X size={20} />
+        </button>
+        <div className="flex items-center mb-4">
+          <FileText className="w-6 h-6 text-sky-600 mr-2" />
+          <h2 className="text-lg font-bold">{project.projectName}</h2>
+        </div>
+        <p className="mb-4 text-gray-700">
+          <strong>Swagger URL:</strong> {project.swaggerUrl}
+        </p>
+        <p className="mb-4 text-gray-700">
+          <strong>Swagger Version:</strong> {project.swaggerVersion}
+        </p>
+        <div className="flex justify-between">
+          <button
+            className="bg-green-400 flex items-center gap-2 text-white px-4 py-2 rounded hover:bg-green-700"
+            onClick={() => onGenerateTestCases(project.projectName)}
+          >
+            <FileText size={16} />
+            Generate Test Cases
+          </button>
+          <button
+            className="bg-red-300 flex items-center gap-2 text-white px-4 py-2 rounded hover:bg-red-700"
+            onClick={onClose}
+          >
+            <X size={16} />
+            Close
+          </button>
+        </div>
       </div>
-
-      <p className="text-gray-700 break-words">
-        <strong>Swagger URL:</strong> {project.swaggerUrl}
-      </p>
-
-      <p className="text-gray-600 mt-2 flex items-center">
-        <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-        Active Project
-      </p>
     </div>
   );
 };
 
-export default ProjectCard;
+export default ProjectDetailsModal;

@@ -6,7 +6,7 @@ import Button from "../../../Components/Global/Button";
 const ProjectDetailsModal = ({ project, onClose, onGenerateTestCases }) => {
   return (
     <div
-      className="fixed inset-0 flex justify-center items-center bg-black/60 bg-opacity-50 z-50"
+      className="fixed inset-0 flex justify-center items-center bg-black/60 bg-opacity-5 z-50"
       onClick={onClose}
     >
       <div

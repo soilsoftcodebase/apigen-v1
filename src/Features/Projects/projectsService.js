@@ -2,7 +2,7 @@
 
 // const API_URL = process.env.API_URL;
 // console.log("Backend API URL:", API_URL);
-const API_BASE_URL = "https://apigenbackend.soilsoft.ai:5001/api"; 
+//const API_BASE_URL = "https://apigenbackend.soilsoft.ai:5001/api"; 
 
 
 import API_URL from "../../API/config";
