@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom"; // ✅ Import navigation hook
 
 const BugsReport = () => {
+  const navigate = useNavigate(); // ✅ Initialize navigation
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -21,14 +23,31 @@ const BugsReport = () => {
     e.preventDefault();
     console.log("Bug Report Submitted:", formData);
     alert("Bug report submitted successfully!");
-    setFormData({ title: "", description: "", priority: "Medium", screenshot: null });
+
+    // ✅ Redirect to dashboard after submitting
+    navigate("/dashboard");
+  };
+
+  const handleClose = () => {
+    // ✅ Redirect to dashboard on close
+    navigate("/dashboard");
   };
 
   return (
-    <div className="max-w-2xl mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">Report a Bug</h2>
+    <div className="max-w-2xl mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg relative">
+      {/* Close Button */}
+      <button
+        className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+        onClick={handleClose}
+      >
+        ✖
+      </button>
+
+      <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">
+        Report a Bug
+      </h2>
+
       <form onSubmit={handleSubmit} className="space-y-4">
-        
         {/* Bug Title */}
         <div>
           <label className="block text-gray-700 font-medium mb-1">Bug Title</label>
@@ -75,7 +94,9 @@ const BugsReport = () => {
 
         {/* Screenshot Upload */}
         <div>
-          <label className="block text-gray-700 font-medium mb-1">Upload Screenshot (Optional)</label>
+          <label className="block text-gray-700 font-medium mb-1">
+            Upload Screenshot (Optional)
+          </label>
           <input
             type="file"
             accept="image/*"
@@ -84,13 +105,23 @@ const BugsReport = () => {
           />
         </div>
 
-        {/* Submit Button */}
-        <button
-          type="submit"
-          className="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-500 transition"
-        >
-          Submit Bug Report
-        </button>
+        {/* Submit & Close Buttons */}
+        <div className="flex justify-between">
+          <button
+            type="button"
+            className="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
+            onClick={handleClose}
+          >
+            Close
+          </button>
+
+          <button
+            type="submit"
+            className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-500 transition"
+          >
+            Submit Bug Report
+          </button>
+        </div>
       </form>
     </div>
   );

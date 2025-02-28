@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom"; // ✅ Import navigation hook
 
 const FeedbackForm = () => {
+  const navigate = useNavigate(); // ✅ Initialize navigation
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -16,12 +18,30 @@ const FeedbackForm = () => {
     e.preventDefault();
     console.log("Feedback Submitted:", formData);
     alert("Thank you for your feedback!");
-    setFormData({ name: "", email: "", feedback: "", rating: "5" });
+
+    // ✅ Redirect to dashboard after submitting
+    navigate("/dashboard");
+  };
+
+  const handleClose = () => {
+    // ✅ Redirect to dashboard on close
+    navigate("/dashboard");
   };
 
   return (
-    <div className="max-w-2xl mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">Feedback Form</h2>
+    <div className="max-w-2xl mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg relative">
+      {/* Close Button */}
+      <button
+        className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+        onClick={handleClose}
+      >
+        ✖
+      </button>
+
+      <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">
+        Feedback Form
+      </h2>
+
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Name Input */}
         <div>
@@ -83,13 +103,23 @@ const FeedbackForm = () => {
           ></textarea>
         </div>
 
-        {/* Submit Button */}
-        <button
-          type="submit"
-          className="w-full bg-gray-800 text-white py-2 rounded-lg hover:bg-gray-700 transition"
-        >
-          Submit Feedback
-        </button>
+        {/* Submit & Close Buttons */}
+        <div className="flex justify-between">
+          <button
+            type="button"
+            className="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
+            onClick={handleClose}
+          >
+            Close
+          </button>
+
+          <button
+            type="submit"
+            className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition"
+          >
+            Submit Feedback
+          </button>
+        </div>
       </form>
     </div>
   );
