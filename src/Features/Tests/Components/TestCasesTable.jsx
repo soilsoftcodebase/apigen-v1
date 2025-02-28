@@ -15,7 +15,11 @@ import {
   PlayCircle,
   Download,
 } from "lucide-react";
-import { getTestCases, RunallTestCases, RunSelectedTestCase } from "../Services/apiGenServices";
+import {
+  getTestCases,
+  RunallTestCases,
+  RunSelectedTestCase,
+} from "../Services/apiGenServices";
 import AddTestCaseForm from "./AddTestCaseForm";
 import { useProjects } from "../Contexts/useProjects";
 
@@ -41,7 +45,7 @@ const Table = () => {
   const [selectedTestCaseIds, setSelectedTestCaseIds] = useState([]);
   const [selectedPayload, setSelectedPayload] = useState(null);
 
-  const { selectedProject , setSelectedProject } = useProjects();
+  const { selectedProject, setSelectedProject } = useProjects();
 
   const abortControllerRef = useRef(null);
   const prevSelectedProjectRef = useRef("");
@@ -56,9 +60,11 @@ const Table = () => {
   // Compute filtered paths on the fly (instead of using state)
   const filteredPaths = useMemo(() => {
     if (!filters.searchEndpoint) return [];
-    return testCaseStats?.paths?.filter((path) =>
-      path.toLowerCase().includes(filters.searchEndpoint.toLowerCase())
-    ) || [];
+    return (
+      testCaseStats?.paths?.filter((path) =>
+        path.toLowerCase().includes(filters.searchEndpoint.toLowerCase())
+      ) || []
+    );
   }, [filters.searchEndpoint, testCaseStats]);
 
   // Fetch data when selected project or filters change
@@ -68,7 +74,6 @@ const Table = () => {
       abortPreviousRequest();
       setLoading(true);
       try {
-        
         // Refresh test case info if project changed
         if (prevSelectedProjectRef.current !== selectedProject) {
           const testCaseInfo = await fetchTestCaseInfo(selectedProject, {
@@ -92,14 +97,14 @@ const Table = () => {
         if (error.name !== "AbortError") {
           console.error("Error initializing test data", error);
           toast.error("Failed to fetch test data. Please try again.");
-        }     
-      }finally{
+        }
+      } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [selectedProject,filters,setSelectedProject]);
+  }, [selectedProject, filters, setSelectedProject]);
 
   // Update a filter and reset the page to 1
   const handleFilterChange = (field, value) => {
@@ -132,7 +137,6 @@ const Table = () => {
     setTestCases([]);
     setSelectedTestCaseIds([]);
   };
-
 
   const handleRunTestCases = async () => {
     try {
@@ -203,13 +207,19 @@ const Table = () => {
       const matchesEndpoint = row.endpoint
         .toLowerCase()
         .includes(filters.searchEndpoint.toLowerCase());
-      const matchesMethod = !filters.selectedMethod || row.method === filters.selectedMethod;
+      const matchesMethod =
+        !filters.selectedMethod || row.method === filters.selectedMethod;
       const matchesTestType =
         !filters.selectedTestType ||
         row.testCases.some((tc) => tc.type === filters.selectedTestType);
       return matchesEndpoint && matchesMethod && matchesTestType;
     });
-  }, [filters.searchEndpoint, filters.selectedMethod, filters.selectedTestType, testCases]);
+  }, [
+    filters.searchEndpoint,
+    filters.selectedMethod,
+    filters.selectedTestType,
+    testCases,
+  ]);
 
   const stats = useMemo(() => {
     const methodCounts = testCaseStats?.methods?.reduce((acc, method) => {
@@ -225,7 +235,9 @@ const Table = () => {
 
   const toggleRow = (rowId) => {
     setExpandedRows((prev) =>
-      prev.includes(rowId) ? prev.filter((id) => id !== rowId) : [...prev, rowId]
+      prev.includes(rowId)
+        ? prev.filter((id) => id !== rowId)
+        : [...prev, rowId]
     );
   };
 
@@ -258,10 +270,14 @@ const Table = () => {
   const handleSelectAllTestCases = (checked, testCases) => {
     if (checked) {
       const newSelectedIds = testCases.map((testCase) => testCase.id);
-      setSelectedTestCaseIds((prev) => Array.from(new Set([...prev, ...newSelectedIds])));
+      setSelectedTestCaseIds((prev) =>
+        Array.from(new Set([...prev, ...newSelectedIds]))
+      );
     } else {
       const newSelectedIds = testCases.map((testCase) => testCase.id);
-      setSelectedTestCaseIds((prev) => prev.filter((id) => !newSelectedIds.includes(id)));
+      setSelectedTestCaseIds((prev) =>
+        prev.filter((id) => !newSelectedIds.includes(id))
+      );
     }
   };
 
@@ -271,7 +287,10 @@ const Table = () => {
   }, [testCases]);
 
   const isSelectAll = useMemo(() => {
-    return allTestCaseIds?.length > 0 && allTestCaseIds?.every((id) => selectedTestCaseIds.includes(id));
+    return (
+      allTestCaseIds?.length > 0 &&
+      allTestCaseIds?.every((id) => selectedTestCaseIds.includes(id))
+    );
   }, [allTestCaseIds, selectedTestCaseIds]);
 
   const handleSelectAll = (checked) => {
@@ -300,7 +319,9 @@ const Table = () => {
           <div className="flex flex-col items-center justify-start">
             <div className="flex items-center space-x-2 w-full">
               <TestTubeDiagonal className="w-8 h-8 text-white mb-2" />
-              <h2 className="text-3xl font-bold text-white mb-1">Generated Test Cases</h2>
+              <h2 className="text-3xl font-bold text-white mb-1">
+                Generated Test Cases
+              </h2>
               {selectedProject && (
                 <div className="relative group top-0 right-0">
                   <div className="w-20 h-12 bg-white/10 rounded-full border-blue-400/20 backdrop-blur-sm flex flex-col justify-center items-center shadow-sm ml-5">
@@ -315,10 +336,10 @@ const Table = () => {
               )}
             </div>
             <ProjectsDropdown
-            onProjectChange={(e) => {
-            handleProjectChange(e);
-          }}
-        />
+              onProjectChange={(e) => {
+                handleProjectChange(e);
+              }}
+            />
           </div>
           <div className="flex items-center space-x-4">
             {selectedProject && (
@@ -326,7 +347,7 @@ const Table = () => {
                 <div className="flex items-center space-x-5">
                   <div className="flex justify-end gap-5">
                     <button
-                      className="flex items-center justify-center w-full gap-2 bg-white/10 border border-blue-400/20 text-white font-bold py-1 px-6 rounded-lg shadow-md hover:bg-white/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex items-center justify-center w-full gap-2 bg-white/10 border border-blue-400/20 text-white font-bold py-1 px-5 rounded-lg shadow-md hover:bg-white/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                       onClick={() => setShowFormPopup(true)}
                       disabled={!selectedProject}
                     >
@@ -334,7 +355,7 @@ const Table = () => {
                       Add Test Case
                     </button>
                     <button
-                      className="flex items-center justify-center w-full gap-2 bg-white/10 border border-blue-400/20 text-white font-bold py-1 px-6 rounded-lg shadow-md hover:bg-white/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex items-center justify-center w-full gap-2 bg-white/10 border border-blue-400/20 text-white font-bold py-1 px-5 rounded-lg shadow-md hover:bg-white/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                       onClick={handleRunTestCases}
                       disabled={runningTests || !selectedProject}
                     >
@@ -369,7 +390,9 @@ const Table = () => {
               type="text"
               placeholder="Search endpoints..."
               value={filters.searchEndpoint}
-              onChange={(e) => handleFilterChange("searchEndpoint", e.target.value)}
+              onChange={(e) =>
+                handleFilterChange("searchEndpoint", e.target.value)
+              }
               className="w-full h-12 bg-white/10 border border-blue-400/20 rounded-xl pl-12 pr-4 text-lg text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-white/30"
             />
             {filteredPaths.length > 0 && (
@@ -402,11 +425,15 @@ const Table = () => {
           <div>
             <select
               value={filters.selectedMethod}
-              onChange={(e) => handleFilterChange("selectedMethod", e.target.value)}
+              onChange={(e) =>
+                handleFilterChange("selectedMethod", e.target.value)
+              }
               className="h-12 bg-white/10 border border-blue-400/20 w-full rounded-xl px-4 text-lg text-white focus:outline-none focus:ring-2 focus:ring-white/30"
             >
               <option value="" disabled>
-                {testCaseStats?.methods?.length > 0 ? "Choose a Method" : "No Methods available"}
+                {testCaseStats?.methods?.length > 0
+                  ? "Choose a Method"
+                  : "No Methods available"}
               </option>
               {testCaseStats?.methods?.map((method) => (
                 <option key={method} value={method} className="text-black">
@@ -438,11 +465,15 @@ const Table = () => {
           </div>
           <select
             value={filters.selectedTestType}
-            onChange={(e) => handleFilterChange("selectedTestType", e.target.value)}
+            onChange={(e) =>
+              handleFilterChange("selectedTestType", e.target.value)
+            }
             className="h-12 bg-white/10 border border-blue-400/20 rounded-xl px-4 text-lg text-white focus:outline-none focus:ring-2 focus:ring-white/30"
           >
             <option value="" disabled>
-              {testCaseStats?.methods?.length > 0 ? "Choose a Test Type" : "No Test types available"}
+              {testCaseStats?.methods?.length > 0
+                ? "Choose a Test Type"
+                : "No Test types available"}
             </option>
             {testCaseStats?.testTypes?.map((type) => (
               <option key={type} value={type} className="text-black">
@@ -466,10 +497,18 @@ const Table = () => {
                   />
                 </th>
                 <th className="px-6 py-4 text-left w-16"></th>
-                <th className="px-6 py-4 text-left text-base font-semibold uppercase text-gray-800">Endpoint</th>
-                <th className="px-6 py-4 text-left text-base font-semibold uppercase text-gray-800">Method</th>
-                <th className="px-6 py-4 text-left text-base font-semibold uppercase text-gray-800">Test Count</th>
-                <th className="px-6 py-4 text-left text-base font-semibold uppercase text-gray-800">Last Generated</th>
+                <th className="px-6 py-4 text-left text-base font-semibold uppercase text-gray-800">
+                  Endpoint
+                </th>
+                <th className="px-6 py-4 text-left text-base font-semibold uppercase text-gray-800">
+                  Method
+                </th>
+                <th className="px-6 py-4 text-left text-base font-semibold uppercase text-gray-800">
+                  Test Count
+                </th>
+                <th className="px-6 py-4 text-left text-base font-semibold uppercase text-gray-800">
+                  Last Generated
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -487,7 +526,12 @@ const Table = () => {
                         <input
                           type="checkbox"
                           className="w-5 h-5 text-sky-600 border-gray-300 rounded focus:ring-blue-200 focus:ring-2 transition-all duration-300"
-                          onChange={(e) => handleSelectAllTestCases(e.target.checked, row.testCases)}
+                          onChange={(e) =>
+                            handleSelectAllTestCases(
+                              e.target.checked,
+                              row.testCases
+                            )
+                          }
                           checked={row.testCases.every((testCase) =>
                             selectedTestCaseIds.includes(testCase.id)
                           )}
@@ -498,7 +542,9 @@ const Table = () => {
                       <button
                         onClick={() => toggleRow(row.id)}
                         className={`p-2 rounded-lg transition-colors ${
-                          hoveredRow === row.id ? "bg-gray-200" : "hover:bg-gray-100"
+                          hoveredRow === row.id
+                            ? "bg-gray-200"
+                            : "hover:bg-gray-100"
                         }`}
                       >
                         {expandedRows.includes(row.id) ? (
@@ -516,12 +562,20 @@ const Table = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`px-4 py-2 rounded-lg text-sm font-medium border ${getMethodColor(row.method)}`}>
+                      <span
+                        className={`px-4 py-2 rounded-lg text-sm font-medium border ${getMethodColor(
+                          row.method
+                        )}`}
+                      >
                         {row.method}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-base text-gray-800">{row.testCount}</td>
-                    <td className="px-6 py-4 text-base text-gray-800">{row.lastRun}</td>
+                    <td className="px-6 py-4 text-base text-gray-800">
+                      {row.testCount}
+                    </td>
+                    <td className="px-6 py-4 text-base text-gray-800">
+                      {row.lastRun}
+                    </td>
                   </tr>
                   {expandedRows.includes(row.id) && (
                     <tr>
@@ -529,8 +583,12 @@ const Table = () => {
                         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
                           <div className="bg-gradient-to-r from-cyan-950 to-sky-900 px-6 py-4 border-b border-gray-200">
                             <div className="flex justify-between items-center">
-                              <h3 className="text-lg font-semibold text-white">Test Cases</h3>
-                              <span className="text-sm text-gray-100">{row.testCases.length} cases</span>
+                              <h3 className="text-lg font-semibold text-white">
+                                Test Cases
+                              </h3>
+                              <span className="text-sm text-gray-100">
+                                {row.testCases.length} cases
+                              </span>
                             </div>
                           </div>
                           <div className="overflow-x-auto">
@@ -540,20 +598,41 @@ const Table = () => {
                                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800">
                                     <input
                                       type="checkbox"
-                                      onChange={(e) => handleSelectAllTestCases(e.target.checked, row.testCases)}
+                                      onChange={(e) =>
+                                        handleSelectAllTestCases(
+                                          e.target.checked,
+                                          row.testCases
+                                        )
+                                      }
                                       checked={row.testCases.every((testCase) =>
-                                        selectedTestCaseIds.includes(testCase.id)
+                                        selectedTestCaseIds.includes(
+                                          testCase.id
+                                        )
                                       )}
                                       className="w-5 h-5 text-sky-600 border-gray-300 rounded focus:ring-blue-200 focus:ring-2 transition-all duration-300"
                                     />
                                   </th>
-                                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800">ID</th>
-                                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800">Name</th>
-                                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800">Request URL</th>
-                                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800">Payload</th>
-                                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800">Response</th>
-                                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800">Type</th>
-                                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800">Steps</th>
+                                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800">
+                                    ID
+                                  </th>
+                                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800">
+                                    Name
+                                  </th>
+                                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800">
+                                    Request URL
+                                  </th>
+                                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800">
+                                    Payload
+                                  </th>
+                                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800">
+                                    Response
+                                  </th>
+                                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800">
+                                    Type
+                                  </th>
+                                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800">
+                                    Steps
+                                  </th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -565,16 +644,28 @@ const Table = () => {
                                     <td className="px-6 py-4 text-sm font-medium text-gray-700">
                                       <input
                                         type="checkbox"
-                                        checked={selectedTestCaseIds.includes(testCase.id)}
-                                        onChange={() => handleSelectTestCase(testCase.id)}
+                                        checked={selectedTestCaseIds.includes(
+                                          testCase.id
+                                        )}
+                                        onChange={() =>
+                                          handleSelectTestCase(testCase.id)
+                                        }
                                         className="w-5 h-5 text-sky-600 border-gray-300 rounded focus:ring-blue-200 focus:ring-2 transition-all duration-300"
                                       />
                                     </td>
-                                    <td className="px-6 py-4 text-sm text-gray-700">{testCase.id}</td>
-                                    <td className="px-6 py-4 text-sm text-gray-700">{testCase.name}</td>
+                                    <td className="px-6 py-4 text-sm text-gray-700">
+                                      {testCase.id}
+                                    </td>
+                                    <td className="px-6 py-4 text-sm text-gray-700">
+                                      {testCase.name}
+                                    </td>
                                     <td className="px-6 py-4">
                                       <button
-                                        onClick={() => setSelectedPayload(testCase.requesturl)}
+                                        onClick={() =>
+                                          setSelectedPayload(
+                                            testCase.requesturl
+                                          )
+                                        }
                                         className="text-blue-600 text-sm underline hover:text-blue-800"
                                       >
                                         View URL
@@ -582,7 +673,9 @@ const Table = () => {
                                     </td>
                                     <td className="px-6 py-4">
                                       <button
-                                        onClick={() => setSelectedPayload(testCase.payload)}
+                                        onClick={() =>
+                                          setSelectedPayload(testCase.payload)
+                                        }
                                         className="text-blue-600 text-sm underline hover:text-blue-800"
                                       >
                                         View Payload
@@ -600,7 +693,9 @@ const Table = () => {
                                     </td>
                                     <td className="px-6 py-4">
                                       <div className="flex items-center space-x-2">
-                                        <span className="text-sm text-gray-700">{testCase.steps}</span>
+                                        <span className="text-sm text-gray-700">
+                                          {testCase.steps}
+                                        </span>
                                       </div>
                                     </td>
                                   </tr>
@@ -618,10 +713,10 @@ const Table = () => {
           </table>
         </div>
       )}
-      
+
       {loading && (
-        <div className="flex items-center justify-center h-64">Loading....</div>)
-      }
+        <div className="flex items-center justify-center h-64">Loading....</div>
+      )}
       {!selectedProject && (
         <div className="flex items-center justify-center h-64 text-xl text-gray-500">
           Please Select the project !!
@@ -650,7 +745,9 @@ const Table = () => {
           </div>
           <div className="flex items-center space-x-2">
             <button
-              onClick={() => handlePageChange(Math.max(filters.currentPage - 1, 1))}
+              onClick={() =>
+                handlePageChange(Math.max(filters.currentPage - 1, 1))
+              }
               disabled={filters.currentPage === 1}
               className="h-8 w-8 flex items-center justify-center bg-white border border-gray-300 rounded-lg text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
             >
@@ -661,9 +758,16 @@ const Table = () => {
             </span>
             <button
               onClick={() =>
-                handlePageChange(Math.min(filters.currentPage + 1, Number(testCases.totalPages || 0)))
+                handlePageChange(
+                  Math.min(
+                    filters.currentPage + 1,
+                    Number(testCases.totalPages || 0)
+                  )
+                )
               }
-              disabled={filters.currentPage === Number(testCases.totalPages || 0)}
+              disabled={
+                filters.currentPage === Number(testCases.totalPages || 0)
+              }
               className="h-8 w-8 flex items-center justify-center bg-white border border-gray-300 rounded-lg text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               &gt;
@@ -678,7 +782,7 @@ const Table = () => {
       )}
       {selectedPayload && (
         <div
-          className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50"
+          className="fixed inset-1 flex justify-center items-center bg-black/10 bg-opacity-10"
           onClick={() => setSelectedPayload(null)}
         >
           <div className="bg-white p-6 rounded shadow-lg w-1/2 max-h-[90vh] overflow-auto">
