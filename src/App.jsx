@@ -21,6 +21,8 @@ import SettingsPage from "./Features/Settings/Pages/SettingsPage";
 import { ProjectProvider } from "./Contexts/ProjectContext";
 import { ToastContainer } from "react-toastify";
 
+import FeedbackForm from "./Components/Layout/FeedbackForm";
+import BugsReport from "./Components/Layout/BugsReport";
 // import ApiTests from "./pages/ApiTests";
 // import Performance from "./pages/Performance";
 // import TestCases from "./pages/TestCases";
@@ -61,6 +63,8 @@ function App() {
               <Route path="runs" element={<RunsPage />} />
               <Route path="tests" element={<TestCasePage />} />
               <Route path="testdata" element={<TestDataPage />} />
+              <Route path="feedback" element={<FeedbackForm/>}/>
+              <Route path="bugs" element={<BugsReport/>}/>
               <Route
                 path="performance-tests"
                 element={<PerformanceTestPage />}
