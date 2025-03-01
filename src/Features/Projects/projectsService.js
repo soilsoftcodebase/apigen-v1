@@ -2,8 +2,7 @@
 
 // const API_URL = process.env.API_URL;
 // console.log("Backend API URL:", API_URL);
-//const API_BASE_URL = "https://apigenbackend.soilsoft.ai:5001/api"; 
-
+//const API_BASE_URL = "https://apigenbackend.soilsoft.ai:5001/api";
 
 import API_URL from "../../API/config";
 
@@ -221,7 +220,6 @@ export async function createProjectWithFile(formData) {
   }
 }
 
-
 export const deleteProjectById = async (projectId) => {
   try {
     if (!projectId) {
@@ -231,7 +229,7 @@ export const deleteProjectById = async (projectId) => {
     console.log(`Deleting project ID: ${projectId}`);
 
     // Making a DELETE request with Fetch API
-    const response = await fetch(`${API_BASE_URL}/ApiGen/Projects/${projectId}`, {
+    const response = await fetch(`${API_URL}/ApiGen/Projects/${projectId}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -243,7 +241,10 @@ export const deleteProjectById = async (projectId) => {
       return true;
     } else {
       const errorData = await response.json();
-      throw new Error(errorData.message || `Failed to delete project. Status: ${response.status}`);
+      throw new Error(
+        errorData.message ||
+          `Failed to delete project. Status: ${response.status}`
+      );
     }
   } catch (error) {
     console.error("❌ Delete failed:", error.message);

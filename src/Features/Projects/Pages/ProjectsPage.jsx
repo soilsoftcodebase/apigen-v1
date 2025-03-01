@@ -1,7 +1,5 @@
-
-
 import { useState, useEffect } from "react";
-import PopupForm from "../components/PopupForm";
+import PopupForm from "../Components/PopupForm";
 import {
   getAllProjects,
   generateTestCases,
@@ -9,6 +7,7 @@ import {
 } from "../projectsService";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Trash2Icon, PlusCircle } from "lucide-react";
 
 const ProjectsPage = () => {
   const [projects, setProjects] = useState([]);
@@ -19,7 +18,6 @@ const ProjectsPage = () => {
   const [loading, setLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false); // State for button loading
 
-  
   const handleDelete = async () => {
     setDeleteLoading(true); // Start the loader
     try {
@@ -99,34 +97,37 @@ const ProjectsPage = () => {
 
   return (
     <div className="p-8 min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 px-20 py-10">
-    {/* Header Section */}
-    <header className="mt-12 mb-6">
-      <h1 className="text-3xl font-bold text-gray-700 animate-fade-in flex items-center justify-start">
-        Projects Dashboard
-      </h1>
-      <div className="w-full h-px bg-gray-300 my-6" />
-    </header>
+      {/* Header Section */}
+      <header className="mt-12 mb-6">
+        <h1 className="text-3xl font-bold text-gray-700 animate-fade-in flex items-center justify-start">
+          Projects Dashboard
+        </h1>
+        <div className="w-full h-px bg-gray-300 my-6" />
+      </header>
 
-    {/* Popup Form */}
-    {showForm && (
-      <PopupForm
-        showForm={showForm}
-        setShowForm={setShowForm}
-        formData={formData}
-        handleFormChange={handleFormChange}
-        handleSaveProject={handleSaveProject}
-      />
-    )}
+      {/* Popup Form */}
+      {showForm && (
+        <PopupForm
+          showForm={showForm}
+          setShowForm={setShowForm}
+          formData={formData}
+          handleFormChange={handleFormChange}
+          handleSaveProject={handleSaveProject}
+        />
+      )}
 
-    <div className="flex justify-between items-center mb-10">
-      <h2 className="text-lg font-semibold text-gray-500 ml-2">
-        Your Saved Projects
-      </h2>
-      <button
-          className="ml-72 bg-green-600 text-xl font-bold text-white px-8 py-3 rounded shadow-lg hover:bg-green-700 focus:outline-none transition duration-300 transform hover:-translate-y-1"
+      <div className="flex justify-between items-center mb-10">
+        <h2 className="text-lg font-semibold text-gray-500 ml-2">
+          Your Saved Projects
+        </h2>
+        <button
+          className="ml-72 bg-green-600 text-xl font-bold text-white px-8 py-3 rounded shadow-lg hover:bg-green-700 focus:outline-none transition duration-300 transform hover:-translate-y-1 flex"
           onClick={handleCreateProject}
         >
-          <span className="mr-2 ">+</span> Create Project
+          <span className="mr-2 ">
+            <PlusCircle />
+          </span>{" "}
+          Create Project
         </button>
       </div>
 
@@ -147,14 +148,7 @@ const ProjectsPage = () => {
                 openDeletePopup(project);
               }}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-                className="w-6 h-6"
-              >
-                <path d="M9 3h6a1 1 0 0 1 1 1v1h4a1 1 0 1 1 0 2h-1v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7H4a1 1 0 1 1 0-2h4V4a1 1 0 0 1 1-1Zm1 2v1h4V5h-4ZM7 7v12h10V7H7Zm2 3h2v7H9v-7Zm4 0h2v7h-2v-7Z" />
-              </svg>
+              <Trash2Icon />
             </button>
 
             {/* Project Name and Version */}
@@ -205,10 +199,11 @@ const ProjectsPage = () => {
         <div
           className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-0"
           onClick={closeModal}
-          style={{ 
-            backgroundColor: "rgba(0, 0, 0, 0.2)", 
-            backdropFilter: "blur(5px)" 
-          }}>
+          style={{
+            backgroundColor: "rgba(0, 0, 0, 0.2)",
+            backdropFilter: "blur(5px)",
+          }}
+        >
           <div
             className="bg-white w-3/4 max-w-lg p-6 rounded shadow-lg relative"
             onClick={(e) => e.stopPropagation()}
@@ -226,7 +221,10 @@ const ProjectsPage = () => {
             >
               {selectedProject.projectName}
             </h3>
-            <div className="flex items-center text-sm text-gray-600  mb-4" style={{ backgroundColor: "rgba(0, 0, 0, 0.1)" }}>
+            <div
+              className="flex items-center text-sm text-gray-600  mb-4"
+              style={{ backgroundColor: "rgba(0, 0, 0, 0.1)" }}
+            >
               <span className="bg-blue-100 text-blue-600 px-2 py-1 rounded-full ">
                 Swagger {selectedProject.swaggerVersion}
               </span>
@@ -254,42 +252,46 @@ const ProjectsPage = () => {
         </div>
       )}
 
-{isPopupVisible && (
-  <div
-    className="fixed inset-0 flex items-center justify-center bg-opacity-10 z-50"
-    style={{ backgroundColor: "rgba(0, 0, 0, 0.01)" ,backdropFilter: "blur(2.5px)" }}
-  >
-    <div className="bg-white p-6 rounded-lg shadow-lg">
-      <h2 className="text-lg font-semibold text-gray-800 mb-4">
-        Confirm Delete
-      </h2>
-      <p className="text-gray-600 mb-4">
-        Are you sure you want to delete the project{" "}
-        <strong>{deleteProject?.projectName}</strong>?
-      </p>
-      <div className="flex justify-end space-x-4">
-        <button
-          className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
-          onClick={closeDeletePopup}
+      {isPopupVisible && (
+        <div
+          className="fixed inset-0 flex items-center justify-center bg-opacity-10 z-50 bg-black/50 backdrop-filter backdrop-blur-sm"
+          style={
+            {
+              // backdropFilter: "blur(5px)",
+            }
+          }
         >
-          Cancel
-        </button>
-        <button
-          className={`px-4 py-2 rounded text-white flex items-center justify-center ${
-            deleteLoading
-              ? "bg-gray-500 cursor-not-allowed"
-              : "bg-red-500 hover:bg-red-600"
-          }`}
-          onClick={handleDelete}
-          disabled={deleteLoading}
-        >
-          {deleteLoading ? "Deleting..." : "Confirm"}
-      
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">
+              Confirm Delete
+            </h2>
+            <p className="text-gray-600 mb-4">
+              Are you sure you want to delete the project{" "}
+              <strong>{deleteProject?.projectName}</strong>?
+            </p>
+            <div className="flex justify-end space-x-4">
+              <button
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+                onClick={closeDeletePopup}
+              >
+                Cancel
+              </button>
+              <button
+                className={`px-4 py-2 rounded text-white flex items-center justify-center ${
+                  deleteLoading
+                    ? "bg-gray-500 cursor-not-allowed"
+                    : "bg-red-500 hover:bg-red-600"
+                }`}
+                onClick={handleDelete}
+                disabled={deleteLoading}
+              >
+                {/* {deleteLoading ? "Deleting..." : "Confirm"} */}
+
                 {/* {deleteLoading ? (
-    <div className="w-5 h-5 border-2 border-t-2 border-gray-200 rounded-full animate-spin"></div>
-  ) : (
-    'Delete'
-  )} */}
+                  <div className="w-5 h-5 border-2 border-t-2 border-gray-200 rounded-full animate-spin"></div>
+                ) : (
+                  "Delete"
+                )} */}
                 {deleteLoading ? "Deleting..." : "Confirm"}
               </button>
             </div>
