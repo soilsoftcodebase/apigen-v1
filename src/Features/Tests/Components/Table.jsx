@@ -1,4 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+
 import * as XLSX from "xlsx";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -184,7 +186,7 @@ const Table = () => {
   const handleProjectChange = (e) => {
     const project = e.target.value;
     setSelectedProject(project);
-    localStorage.setItem("selectedProject", project);
+    // localStorage.setItem("selectedProject", project);
     setFilters({
       searchEndpoint: "",
       selectedMethod: "",
@@ -196,7 +198,7 @@ const Table = () => {
     setTestCases([]);
     setSelectedTestCaseIds([]);
   };
-
+  const navigate = useNavigate();
   const handleRunTestCases = async () => {
     try {
       setRunningTests(true);
@@ -205,9 +207,17 @@ const Table = () => {
       } else {
         await RunSelectedTestCase(selectedProject, selectedTestCaseIds);
       }
+      toast.success("Test cases run successfully!", {
+        autoClose: 4000,
+        theme: "light",
+      });
+      navigate("/runs"); // Navigate to the runs page after completion
     } catch (error) {
       console.error("Error running test cases", error);
-      toast.error("Failed to run test cases. Please try again.");
+      toast.error("Failed to run test cases. Please try again.", {
+        autoClose: 4000,
+        theme: "light",
+      });
     } finally {
       setRunningTests(false);
     }
@@ -322,7 +332,7 @@ const Table = () => {
     <div className="w-full overflow-hidden rounded-xl shadow-lg border border-gray-200 relative">
       {/* Running tests modal */}
       {runningTests && (
-        <div className="fixed inset-0 z-50 flex flex-col justify-center items-center bg-black bg-opacity-50">
+        <div className="fixed inset-0 flex flex-col justify-center items-center bg-black/60 backdrop-blur-sm z-50">
           <div className="bg-white p-10 rounded-lg shadow-2xl transform scale-95 hover:scale-100 transition-transform duration-300 ease-out w-96 h-96 flex flex-col items-center justify-center">
             <div className="w-16 h-16 rounded-full border-t-4 border-b-4 border-transparent border-t-blue-500 border-b-green-500 animate-spin mb-6"></div>
             <p className="text-2xl font-extrabold text-gray-700 text-center leading-relaxed">
@@ -767,7 +777,7 @@ const Table = () => {
           <BeatLoader />
           {/* <div className="w-16 h-16 border-t-4 border-b-4 border-blue-500 rounded-full animate-spin"></div> */}
           <p className="text-lg font-bold text-gray-700">
-            Loading your previous Testcases...
+            Loading your Testcases...
           </p>
         </div>
       )}
