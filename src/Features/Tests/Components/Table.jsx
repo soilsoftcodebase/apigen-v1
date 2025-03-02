@@ -1,9 +1,4 @@
-import React, {
-  useState,
-  useMemo,
-  useEffect,
-  useRef,
-} from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import * as XLSX from "xlsx";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -32,7 +27,6 @@ import AddTestCaseForm from "./AddTestCaseForm";
 import { useProjects } from "../../../Contexts/ProjectContext";
 import ProjectsDropdown from "../../../Components/Global/ProjectsDropdown";
 import { BeatLoader } from "react-spinners";
-
 
 // ====================================================
 // Table Component - Optimized & Enhanced for Readability
@@ -367,7 +361,7 @@ const Table = () => {
               {/* Projects Dropdown (left-aligned) */}
               <div className="flex items-center ml-12">
                 <ProjectsDropdown
-                  onProjectChange={(e)=>handleProjectChange(e)}
+                  onProjectChange={(e) => handleProjectChange(e)}
                   variant="testcasetableVariant"
                 />
               </div>
@@ -769,13 +763,13 @@ const Table = () => {
 
       {/* Loader / No Data Display */}
       {loading && (
-          <div className=" flex flex-col items-center justify-center space-y-4 h-64">
-            <BeatLoader />
-            {/* <div className="w-16 h-16 border-t-4 border-b-4 border-blue-500 rounded-full animate-spin"></div> */}
-            <p className="text-lg font-bold text-gray-700">
-              Loading your previous Testcases...
-            </p>
-          </div>
+        <div className=" flex flex-col items-center justify-center space-y-4 h-64">
+          <BeatLoader />
+          {/* <div className="w-16 h-16 border-t-4 border-b-4 border-blue-500 rounded-full animate-spin"></div> */}
+          <p className="text-lg font-bold text-gray-700">
+            Loading your previous Testcases...
+          </p>
+        </div>
       )}
       {!selectedProject && (
         <div className="flex items-center justify-center h-64 text-xl text-gray-500">
@@ -844,7 +838,7 @@ const Table = () => {
       {/* Selected Payload Modal */}
       {selectedPayload && (
         <div
-          className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50"
+          className="fixed inset-0 flex justify-center items-center bg-black/20 bg-opacity-50"
           onClick={() => setSelectedPayload(null)}
         >
           <div className="bg-white p-6 rounded shadow-lg w-1/2 max-h-[90vh] overflow-auto">
@@ -889,4 +883,3 @@ const Table = () => {
 };
 
 export default Table;
-
