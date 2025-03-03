@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { ClipboardIcon } from "@heroicons/react/20/solid";
+import { X } from "lucide-react";
 import {
   getTestRunsByProject,
   deleteSingleTestRunById,
@@ -10,7 +10,10 @@ import * as XLSX from "xlsx";
 import { useProjects } from "../../../Contexts/ProjectContext";
 import ProjectsDropdown from "../../../Components/Global/ProjectsDropdown";
 import { BeatLoader } from "react-spinners";
-import { Download, Trash2 } from "lucide-react";
+import { CopyIcon, Download, Trash2 } from "lucide-react";
+import { Copy, Check } from "lucide-react";
+
+// Inside your component:
 
 const RunTestCaseTable = () => {
   const [filteredRunData, setFilteredRunData] = useState([]);
@@ -27,6 +30,9 @@ const RunTestCaseTable = () => {
     selectedProject: selectProjectName,
     setSelectedProject: setSelectedProjectName,
   } = useProjects();
+  const [copiedRowId, setCopiedRowId] = useState(null);
+  const [copiedPayloadRowId, setCopiedPayloadRowId] = useState(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (selectProjectName) {
@@ -313,7 +319,7 @@ const RunTestCaseTable = () => {
             <BeatLoader />
             {/* <div className="w-16 h-16 border-t-4 border-b-4 border-blue-500 rounded-full animate-spin"></div> */}
             <p className="text-lg font-bold text-gray-700">
-              Loading your previous Test Runs...
+              Loading your Test Runs...
             </p>
           </div>
         </div>
@@ -421,29 +427,29 @@ const RunTestCaseTable = () => {
                             <table className="w-full bg-white border border-gray-300">
                               <thead className="bg-gradient-to-r from-gray-600 to-gray-700 text-white">
                                 <tr>
-                                  <th className="p-2 text-center border-r border-gray-300">
-                                    Test ID
+                                  <th className="p-4 text-center border-r border-gray-300">
+                                    TestID
                                   </th>
-                                  <th className="p-2 text-center border-r border-gray-300">
+                                  <th className="p-4 text-center border-r border-gray-300">
                                     Test Case Name
                                   </th>
-                                  <th className="p-2 text-center border-r border-gray-300">
+                                  <th className="p-4 text-center border-r border-gray-300">
                                     Input Request URL
                                   </th>
-                                  <th className="p-2 text-center border-r border-gray-300">
+                                  <th className="p-4 text-center border-r border-gray-300">
                                     Method
                                   </th>
-                                  <th className="p-2 text-center border-r border-gray-300">
+                                  <th className="p-4 text-center border-r border-gray-300">
                                     Payload
                                   </th>
-                                  <th className="p-2 text-center border-r border-gray-300">
+                                  <th className="p-4 text-center border-r border-gray-300">
                                     Response Code
                                   </th>
-                                  <th className="p-2 text-center border-r border-gray-300">
+                                  <th className="p-4 text-center border-r border-gray-300">
                                     Response
                                   </th>
 
-                                  <th className="p-2 text-center">Status</th>
+                                  <th className="p-4 text-center">Status</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -465,7 +471,11 @@ const RunTestCaseTable = () => {
                                     </td>
 
                                     {/* Input URL */}
-                                    <td className="p-2 text-center border-r border-gray-300">
+
+                                    <td
+                                      key={test.testCaseId}
+                                      className="p-2 text-center border-r border-gray-300"
+                                    >
                                       <div className="flex justify-center items-center space-x-2">
                                         <span
                                           onClick={() =>
@@ -477,17 +487,26 @@ const RunTestCaseTable = () => {
                                           {truncateText(test.inputUrl)}
                                         </span>
                                         <div
-                                          onClick={() =>
+                                          onClick={() => {
                                             handleCopyFeedback(
                                               test.inputUrl,
                                               `${run.testRunId}-${test.testCaseId}-url`
-                                            )
-                                          }
+                                            );
+                                            setCopiedRowId(test.testCaseId);
+                                            setTimeout(
+                                              () => setCopiedRowId(null),
+                                              2000
+                                            );
+                                          }}
                                           className="cursor-pointer text-gray-500 hover:text-gray-800"
                                           title="Copy URL"
                                           aria-label="Copy URL"
                                         >
-                                          <ClipboardIcon className="w-4 h-4 inline-block" />
+                                          {copiedRowId === test.testCaseId ? (
+                                            <Check className="w-4 h-4 inline-block text-green-500 " />
+                                          ) : (
+                                            <Copy className="w-4 h-4 inline-block text-gray-500 " />
+                                          )}
                                         </div>
                                       </div>
                                     </td>
@@ -498,7 +517,10 @@ const RunTestCaseTable = () => {
                                     </td>
 
                                     {/* Payload */}
-                                    <td className="p-2 text-center border-r border-gray-300">
+                                    <td
+                                      key={test.testCaseId}
+                                      className="p-2 text-center border-r border-gray-300"
+                                    >
                                       <div className="flex justify-center items-center space-x-2">
                                         <span
                                           onClick={() =>
@@ -512,17 +534,29 @@ const RunTestCaseTable = () => {
                                           {truncateText(test.payload || "N/A")}
                                         </span>
                                         <div
-                                          onClick={() =>
+                                          onClick={() => {
                                             handleCopyFeedback(
                                               test.payload || "N/A",
                                               `${run.testRunId}-${test.testCaseId}-payload`
-                                            )
-                                          }
+                                            );
+                                            setCopiedPayloadRowId(
+                                              test.testCaseId
+                                            );
+                                            setTimeout(
+                                              () => setCopiedPayloadRowId(null),
+                                              2000
+                                            );
+                                          }}
                                           className="cursor-pointer text-gray-500 hover:text-gray-800"
                                           title="Copy Payload"
                                           aria-label="Copy Payload"
                                         >
-                                          <ClipboardIcon className="w-4 h-4 inline-block" />
+                                          {copiedPayloadRowId ===
+                                          test.testCaseId ? (
+                                            <Check className="w-4 h-4 inline-block text-green-500 " />
+                                          ) : (
+                                            <Copy className="w-4 h-4 inline-block text-gray-500 " />
+                                          )}
                                         </div>
                                       </div>
                                     </td>
@@ -581,36 +615,49 @@ const RunTestCaseTable = () => {
       {expandedContent && (
         <div
           id="modal-background"
-          className="fixed inset-0 bg-black/60 bg-opacity-50 flex justify-center items-center z-50"
+          className="fixed inset-0 bg-black/60 bg-opacity-50 flex justify-center items-center z-50 backdrop-blur-sm"
           onClick={closeExpandedContent}
         >
           <div
-            className="bg-white p-6 rounded-lg shadow max-w-lg w-full"
+            className="relative bg-white p-6 rounded-lg shadow max-w-lg w-full"
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Icon controls at the top right */}
+            <div className="absolute top-4 right-4 flex space-x-2">
+              <div
+                onClick={() => {
+                  navigator.clipboard.writeText(expandedContent);
+                  setCopied(true);
+                  toast.success("Copied to clipboard!", {
+                    autoClose: 4000,
+                    theme: "light",
+                  });
+                  setTimeout(() => setCopied(false), 2000);
+                }}
+                className="cursor-pointer p-2 hover:bg-gray-200 rounded"
+                title="Copy"
+                aria-label="Copy"
+              >
+                {copied ? (
+                  <Check className="w-5 h-5" />
+                ) : (
+                  <Copy className="w-5 h-5" />
+                )}
+              </div>
+              <div
+                onClick={closeExpandedContent}
+                className="cursor-pointer p-2 hover:bg-gray-200 rounded"
+                title="Close"
+                aria-label="Close"
+              >
+                <X className="w-5 h-5" />
+              </div>
+            </div>
+
             <h2 className="text-lg font-bold mb-4">Expanded Content</h2>
             <pre className="bg-gray-100 p-4 rounded overflow-auto max-h-64">
               {expandedContent}
             </pre>
-            <div className="flex justify-end items-center mt-4 space-x-4">
-              {/* Copy Button */}
-              <button
-                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700 focus:outline-none"
-                onClick={() => {
-                  navigator.clipboard.writeText(expandedContent);
-                  alert("Copied to clipboard!");
-                }}
-              >
-                Copy
-              </button>
-              {/* Close Button */}
-              <button
-                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700 focus:outline-none"
-                onClick={closeExpandedContent}
-              >
-                Close
-              </button>
-            </div>
           </div>
         </div>
       )}
