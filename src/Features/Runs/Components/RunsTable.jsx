@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
-//import { ClipboardIcon } from "@heroicons/react/20/solid";
+import { ClipboardIcon } from "@heroicons/react/20/solid";
 import {
   getTestRunsByProject,
   deleteSingleTestRunById,
@@ -487,7 +487,7 @@ const RunTestCaseTable = () => {
                                           title="Copy URL"
                                           aria-label="Copy URL"
                                         >
-                                          {/* { <ClipboardIcon className="w-4 h-4 inline-block" />} */}
+                                          <ClipboardIcon className="w-4 h-4 inline-block" />
                                         </div>
                                       </div>
                                     </td>
@@ -522,7 +522,7 @@ const RunTestCaseTable = () => {
                                           title="Copy Payload"
                                           aria-label="Copy Payload"
                                         >
-                                          {/* { <ClipboardIcon className="w-4 h-4 inline-block" />} */}
+                                          <ClipboardIcon className="w-4 h-4 inline-block" />
                                         </div>
                                       </div>
                                     </td>
