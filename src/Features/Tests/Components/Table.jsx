@@ -631,7 +631,10 @@ const Table = () => {
                       {row.testCount}
                     </td>
                     <td className="px-6 py-4 text-base text-gray-800">
-                      {row.lastRun}
+                      {new Date(row.lastRun).toLocaleString(undefined, {
+                        dateStyle: "short",
+                        timeStyle: "short",
+                      })}
                     </td>
                   </tr>
                   {expandedRows.includes(row.id) && (

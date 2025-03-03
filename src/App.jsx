@@ -63,8 +63,8 @@ function App() {
               <Route path="runs" element={<RunsPage />} />
               <Route path="tests" element={<TestCasePage />} />
               <Route path="testdata" element={<TestDataPage />} />
-              <Route path="feedback" element={<FeedbackForm/>}/>
-              <Route path="bugs" element={<BugsReport/>}/>
+              <Route path="feedback" element={<FeedbackForm />} />
+              <Route path="bugs" element={<BugsReport />} />
               <Route
                 path="performance-tests"
                 element={<PerformanceTestPage />}
@@ -75,7 +75,7 @@ function App() {
             </Route>
           </Routes>
           <ToastContainer
-            position="top-right"
+            position="top-center"
             autoClose={3000}
             hideProgressBar={false}
             closeOnClick
