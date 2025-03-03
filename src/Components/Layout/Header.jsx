@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useSelector } from "react-redux";
 import { Bell, User } from "lucide-react";
-import FeedbackForm from "./FeedbackForm";
+import FeedbackForm from "../../pages/FeedbackForm";
 const Header = ({ isCollapsed }) => {
   const user = useSelector((state) => state.auth.user);
 

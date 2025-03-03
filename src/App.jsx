@@ -21,8 +21,8 @@ import SettingsPage from "./Features/Settings/Pages/SettingsPage";
 import { ProjectProvider } from "./Contexts/ProjectContext";
 import { ToastContainer } from "react-toastify";
 
-import FeedbackForm from "./Components/Layout/FeedbackForm";
-import BugsReport from "./Components/Layout/BugsReport";
+import FeedbackForm from "./pages/FeedbackForm";
+import BugsReport from "./pages/BugsReport";
 // import ApiTests from "./pages/ApiTests";
 // import Performance from "./pages/Performance";
 // import TestCases from "./pages/TestCases";
