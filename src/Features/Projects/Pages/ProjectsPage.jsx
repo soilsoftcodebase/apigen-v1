@@ -305,7 +305,7 @@
 // export default ProjectsPage;
 
 import { useState, useEffect } from "react";
-import PopupForm from "../components/PopupForm";
+import PopupForm from "../Components/PopupForm";
 import {
   getAllProjects,
   generateTestCases,
