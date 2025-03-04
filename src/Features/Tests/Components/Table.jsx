@@ -330,7 +330,7 @@ const Table = () => {
   // Render JSX
   // =============================
   return (
-    <div className="w-full overflow-hidden rounded-xl shadow-lg border border-gray-200 relative">
+    <div className="w-full overflow-hidden rounded-xl shadow-lg border border-gray-200 relative mt-4">
       {/* Running tests modal */}
       {runningTests && (
         <div className="fixed inset-0 flex flex-col justify-center items-center bg-black/60 backdrop-blur-sm z-50">
@@ -344,92 +344,118 @@ const Table = () => {
       )}
 
       {/* Header Section */}
-      <div className="bg-gradient-to-r from-gray-800 to-gray-900 px-10 py-8">
+      <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 px-10 py-6 shadow-lg">
         <div className="">
+          {/* Main Header Section */}
           <div className="flex items-center justify-between mb-6">
-            {/* Left Section: Title, Count, and Project Dropdown */}
+            {/* Left Section: Title, Counts, Methods Breakdown, and Project Dropdown */}
             <div className="flex flex-col">
-              {/* Title and Total Count */}
-              <div className="flex items-center space-x-3 mb-4">
-                <TestTubeDiagonal className="w-8 h-8 text-white" />
-                <h2 className="text-3xl font-bold text-white">
-                  Generated Test Cases
-                </h2>
-                {selectedProject && (
-                  <div className="relative group ml-5">
-                    <div className="w-20 h-12 bg-white/10 rounded-full flex flex-col justify-center items-center shadow-sm">
-                      <span className="text-white font-bold text-2xl">
-                        {testCaseStats.totalTestCasesCount}
-                      </span>
+              <div className="flex items-center space-x-6 mb-4">
+                <TestTubeDiagonal className="w-9 h-9 text-cyan-300" />
+                <div className="flex flex-col">
+                  <h2 className="text-3xl font-semibold text-white tracking-tight">
+                    Generated Test Cases
+                  </h2>
+                  {selectedProject && (
+                    <div className="flex items-center space-x-4 mt-2 flex-wrap gap-2">
+                      {/* Total Counts */}
+                      <div className="flex items-center bg-white/10 px-3 py-1 rounded-full shadow-md">
+                        <span className="text-gray-200 font-medium text-sm">
+                          Total:{" "}
+                          <span className="text-white">
+                            {testCaseStats.totalTestCasesCount}
+                          </span>
+                        </span>
+                      </div>
+                      <div className="flex items-center bg-cyan-500/10 px-3 py-1 rounded-full shadow-md">
+                        <span className="text-cyan-100 font-medium text-sm">
+                          Endpoints:{" "}
+                          <span className="text-white">
+                            {testCaseStats.totalEndpointsCount}
+                          </span>
+                        </span>
+                      </div>
+                      {/* Detailed Methods Breakdown */}
+                      <div className="flex items-center space-x-2">
+                        {["GET", "POST", "PUT", "DELETE"].map((method) => (
+                          <div
+                            key={method}
+                            className={`flex items-center px-2 py-1 rounded-full shadow-md text-xs font-semibold ${
+                              testCaseStats.totalMethodCounts?.[method] > 0
+                                ? {
+                                    GET: "bg-green-500/20 text-green-100",
+                                    POST: "bg-blue-500/20 text-blue-100",
+                                    PUT: "bg-yellow-500/20 text-yellow-100",
+                                    DELETE: "bg-red-500/20 text-red-100",
+                                  }[method]
+                                : "bg-gray-700/50 text-gray-400"
+                            }`}
+                          >
+                            <span>
+                              {method}:{" "}
+                              <span className="text-white">
+                                {testCaseStats.totalMethodCounts?.[method] ?? 0}
+                              </span>
+                            </span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 ml-2 w-max bg-gray-800 text-white text-xs px-3 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-md">
-                      Total Test Cases
-                    </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
 
-              {/* Projects Dropdown (left-aligned) */}
-              <div className="flex items-center ml-12">
+              {/* Project Dropdown with Label */}
+              <div className="ml-12 flex items-center space-x-3">
+                <span className="text-gray-300 font-medium text-sm">
+                  Select Project:
+                </span>
                 <ProjectsDropdown
                   onProjectChange={(e) => handleProjectChange(e)}
                   variant="testcasetableVariant"
+                  className="bg-gradient-to-r from-gray-700 to-gray-600 text-white border-none rounded-lg shadow-inner focus:ring-2 focus:ring-cyan-400 transition-all w-64"
                 />
               </div>
             </div>
 
             {/* Right Section: Buttons */}
-            <div className="flex items-center space-x-4 ">
+            <div className="flex items-center space-x-4">
               {selectedProject && (
-                <div className="flex items-center space-x-4 space-y-12">
-                  {/* Add Test Case Button */}
+                <div className="flex items-center space-x-4">
                   <button
-                    className="flex items-center justify-center gap-2 
-                       bg-blue-200 hover:bg-blue-300 text-blue-900 
-                       font-semibold py-2 px-8 rounded-lg shadow-md 
-                       transition-all duration-300 
-                       disabled:opacity-50 disabled:cursor-not-allowed 
-                       min-w-[160px]"
+                    className="group relative flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold py-2 px-6 rounded-xl shadow-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed min-w-[160px] overflow-hidden"
                     onClick={() => setShowFormPopup(true)}
                     disabled={!selectedProject}
                   >
-                    <PlusCircle className="w-6 h-6" />
+                    <PlusCircle className="w-6 h-6 group-hover:scale-110 transition-transform" />
                     Add Test Case
+                    <span className="absolute inset-0 bg-blue-700 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></span>
                   </button>
 
-                  {/* Run Test Cases Button */}
                   <button
-                    className="flex items-center justify-center gap-2 
-                       bg-green-200 hover:bg-green-300 text-green-900 
-                       font-semibold py-2 px-8 rounded-lg shadow-md 
-                       transition-all duration-300 
-                       disabled:opacity-50 disabled:cursor-not-allowed 
-                       min-w-[160px]"
+                    className="group relative flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold py-2 px-6 rounded-xl shadow-lg hover:from-green-600 hover:to-green-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed min-w-[160px] overflow-hidden"
                     onClick={handleRunTestCases}
                     disabled={runningTests || !selectedProject}
                   >
-                    <PlayCircle className="w-6 h-6" />
+                    <PlayCircle className="w-6 h-6 group-hover:scale-110 transition-transform" />
                     {runningTests
                       ? "Running..."
                       : selectedTestCaseIds.length === 0
                       ? "Run All Test Cases"
                       : `Run (${selectedTestCaseIds.length}) Test Cases`}
+                    <span className="absolute inset-0 bg-green-700 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></span>
                   </button>
 
-                  {/* Download Button */}
-                  <div className="relative group space-y-12 space-x-2">
+                  <div className="relative group">
                     <button
-                      className="flex items-center justify-center 
-                         bg-indigo-200 hover:bg-indigo-300 text-indigo-900 
-                         font-semibold p-3 rounded-full shadow-md 
-                         transition-all duration-300 
-                         disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="relative flex items-center justify-center bg-gradient-to-r from-indigo-500 to-indigo-600 text-white font-semibold p-3 rounded-full shadow-lg hover:from-indigo-600 hover:to-indigo-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden"
                       onClick={downloadAllTestCases}
                       disabled={!selectedProject}
                     >
-                      <Download className="w-6 h-6" />
+                      <Download className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                      <span className="absolute inset-0 bg-indigo-700 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></span>
                     </button>
-                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-max bg-gray-800 text-white text-xs px-3 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-md">
+                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-max bg-gray-900 text-white text-xs px-3 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-md">
                       Download All Test Cases
                     </div>
                   </div>
@@ -437,134 +463,132 @@ const Table = () => {
               )}
             </div>
           </div>
-        </div>
 
-        {/* Search and Filter Section */}
-        <div className="grid grid-cols-3 gap-6">
-          <div className="relative">
-            <div className="relative">
-              {/* Search Input */}
-              <div className="relative flex items-center">
-                <input
-                  type="text"
-                  placeholder="Search endpoints..."
-                  value={filters.searchEndpoint}
-                  onChange={(e) => {
-                    handleFilterChange("searchEndpoint", e.target.value);
-                    setIsDropdownOpen(true); // Open dropdown when typing
-                  }}
-                  onFocus={() => setIsDropdownOpen(true)} // Open dropdown on focus
-                  // className="h-12 bg-white/10 border border-blue-400/20 rounded-xl px-4 text-lg text-white focus:outline-none focus:ring-2 "
-                  className="w-full h-12 bg-white/10 border-2 border-blue-400/30 rounded-xl pl-14 pr-4 text-lg text-white placeholder-white focus:outline-none focus:ring-1 focus:ring-white/30 transition-all"
-                />
-                {/* Search Icon */}
-                {/* <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6 text-blue-200/50 absolute left-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          {/* Filter Section Below */}
+          {selectedProject && (
+            <div className="grid grid-cols-3 gap-6 bg-gray-800/50 p-4 rounded-xl shadow-inner">
+              <div className="relative">
+                <div className="relative flex items-center">
+                  {filters.searchEndpoint && (
+                    <div className="absolute left-90 top-1/2 transform -translate-y-1/2 flex items-center bg-cyan-500/20 px-2 py-1 rounded-md text-cyan-100 text-sm">
+                      {filteredPaths.length} Results
+                      <button
+                        className="ml-2 text-cyan-300 hover:text-cyan-100 transition-colors"
+                        onClick={() => {
+                          handleFilterChange("searchEndpoint", "");
+                          setIsDropdownOpen(false);
+                        }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  )}
+                  <Search className="absolute left-4 top-3.5 w-5 h-5 text-cyan-400" />
+                  <input
+                    type="text"
+                    placeholder="Search endpoints..."
+                    value={filters.searchEndpoint}
+                    onChange={(e) => {
+                      handleFilterChange("searchEndpoint", e.target.value);
+                      setIsDropdownOpen(true);
+                    }}
+                    onFocus={() => setIsDropdownOpen(true)}
+                    className={`w-full h-12 bg-gradient-to-r from-gray-700 to-gray-600 border border-cyan-500/30 rounded-xl pl-${
+                      filters.searchEndpoint ? "20" : "14"
+                    } pr-4 pl-12 text-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-400 shadow-inner transition-all`}
                   />
-                </svg> */}
+                </div>
+                {isDropdownOpen && filteredPaths.length > 0 && (
+                  <ul className="absolute z-10 w-full bg-gray-900/95 backdrop-blur-md rounded-xl mt-2 shadow-xl border border-cyan-500/20 overflow-hidden">
+                    {filteredPaths.map((path) => (
+                      <li
+                        key={path}
+                        onClick={() => {
+                          handleSelectPath(path);
+                          setIsDropdownOpen(false);
+                        }}
+                        className="p-3 text-white hover:bg-cyan-600/20 cursor-pointer transition-colors duration-200"
+                      >
+                        {path}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <div className="mt-2 px-3 py-1 bg-cyan-500/10 rounded-lg shadow-sm flex items-center justify-between">
+                  <span className="text-cyan-100 font-medium text-sm">
+                    Total Endpoints
+                  </span>
+                  <span className="text-white font-semibold">
+                    {testCaseStats.totalEndpointsCount}
+                  </span>
+                </div>
               </div>
-
-              {/* Dropdown List */}
-              {isDropdownOpen && filteredPaths.length > 0 && (
-                <ul className="absolute z-10 w-full bg-gray-800/95 backdrop-blur-sm rounded-xl mt-2 shadow-2xl border border-blue-400/20 overflow-hidden">
-                  {filteredPaths.map((path) => (
-                    <li
-                      key={path}
-                      onClick={() => {
-                        handleSelectPath(path);
-                        setIsDropdownOpen(false); // Close dropdown after selection
-                      }}
-                      className="p-3 text-white hover:bg-gray-600/80 cursor-pointer transition-colors duration-200"
+              <div>
+                <select
+                  value={filters.selectedMethod}
+                  onChange={(e) =>
+                    handleFilterChange("selectedMethod", e.target.value)
+                  }
+                  className="h-12 w-full bg-gradient-to-r from-gray-700 to-gray-600 border border-cyan-500/30 rounded-xl px-4 text-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 shadow-inner transition-all"
+                >
+                  <option value="" disabled className="text-gray-900">
+                    {testCaseStats?.methods?.length > 0
+                      ? "Choose a Method"
+                      : "No Methods available"}
+                  </option>
+                  {testCaseStats?.methods?.map((method) => (
+                    <option
+                      key={method}
+                      value={method}
+                      className="text-gray-900"
                     >
-                      {path}
-                    </li>
+                      {method}
+                    </option>
                   ))}
-                </ul>
-              )}
-            </div>
-            <Search className="absolute left-4 top-3.5 w-5 h-5 text-blue-300" />
-            <div className="grid grid-cols-2 gap-2 mb-6">
-              <div className="px-2 py-1 bg-white/10 rounded-lg backdrop-blur-sm mt-4 pl-4">
-                <span className="text-white font-medium text-sm">
-                  {testCaseStats.totalEndpointsCount}
-                </span>
-                <span className="text-blue-100 ml-2">Total Endpoints</span>
-              </div>
-              <div className="px-2 py-1 bg-white/10 rounded-lg backdrop-blur-sm mt-4 pl-4">
-                <span className="text-white font-medium text-sm"></span>
-                <span className="text-blue-100 ml-2">Searched</span>
-              </div>
-            </div>
-          </div>
-          <div>
-            <select
-              value={filters.selectedMethod}
-              onChange={(e) =>
-                handleFilterChange("selectedMethod", e.target.value)
-              }
-              className="h-12 bg-white/10 border border-blue-400/20 w-full rounded-xl px-4 text-lg text-white focus:outline-none focus:ring-2 focus:ring-white/30"
-            >
-              <option value="" disabled>
-                {testCaseStats?.methods?.length > 0
-                  ? "Choose a Method"
-                  : "No Methods available"}
-              </option>
-              {testCaseStats?.methods?.map((method) => (
-                <option key={method} value={method} className="text-black">
-                  {method}
-                </option>
-              ))}
-            </select>
-            <div>
-              <div className="flex items-center space-x-2 mt-4">
-                {testCaseStats?.methods?.map((method) => (
-                  <div
-                    key={method}
-                    className={`px-2 py-1 rounded-lg text-sm font-medium flex items-center space-x-2 ${
-                      testCaseStats.totalMethodCounts?.[method] > 0
-                        ? "bg-white/15 text-white"
-                        : "bg-white/5 text-cyan-200"
-                    }`}
-                  >
-                    <span className="text-sm font-semibold">
-                      {method}-{testCaseStats.totalMethodCounts?.[method] ?? 0}
-                      <span className="text-sm text-white/70 font-bold ml-1">
-                        ({stats?.methods?.[method] ?? 0})
+                </select>
+                <div className="flex items-center space-x-2 mt-2 flex-wrap gap-2">
+                  {testCaseStats?.methods?.map((method) => (
+                    <div
+                      key={method}
+                      className={`px-3 py-1 rounded-lg text-sm font-medium flex items-center space-x-2 bg-gradient-to-r ${
+                        testCaseStats.totalMethodCounts?.[method] > 0
+                          ? "from-cyan-500/20 to-cyan-600/20 text-white"
+                          : "from-gray-700 to-gray-600 text-cyan-200"
+                      } shadow-sm`}
+                    >
+                      <span className="text-sm font-semibold">
+                        {method}-
+                        {testCaseStats.totalMethodCounts?.[method] ?? 0}
+                        <span className="text-sm text-white/70 font-bold ml-1">
+                          ({stats?.methods?.[method] ?? 0})
+                        </span>
                       </span>
-                    </span>
-                  </div>
-                ))}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <select
+                  value={filters.selectedTestType}
+                  onChange={(e) =>
+                    handleFilterChange("selectedTestType", e.target.value)
+                  }
+                  className="h-12 w-full bg-gradient-to-r from-gray-700 to-gray-600 border border-cyan-500/30 rounded-xl px-4 text-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 shadow-inner transition-all"
+                >
+                  <option value="" disabled className="text-gray-900">
+                    {testCaseStats?.methods?.length > 0
+                      ? "Choose a Test Type"
+                      : "No Test types available"}
+                  </option>
+                  {testCaseStats?.testTypes?.map((type) => (
+                    <option key={type} value={type} className="text-gray-900">
+                      {type}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
-          </div>
-          <select
-            value={filters.selectedTestType}
-            onChange={(e) =>
-              handleFilterChange("selectedTestType", e.target.value)
-            }
-            className="h-12 bg-white/10 border border-blue-400/20 rounded-xl px-4 text-lg text-white focus:outline-none focus:ring-2 focus:ring-white/30"
-          >
-            <option value="" disabled>
-              {testCaseStats?.methods?.length > 0
-                ? "Choose a Test Type"
-                : "No Test types available"}
-            </option>
-            {testCaseStats?.testTypes?.map((type) => (
-              <option key={type} value={type} className="text-black">
-                {type}
-              </option>
-            ))}
-          </select>
+          )}
         </div>
       </div>
 
