@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import {useProjects} from "../../Contexts/ProjectContext";
+import { useProjects } from "../../Contexts/ProjectContext";
 const ProjectsDropdown = ({
   onProjectChange,
   // Add a variant prop to control styling
@@ -37,7 +37,7 @@ const ProjectsDropdown = ({
       w-full 
       px-4 
       pr-24 
-      text-lg 
+      text-base 
       text-gray-700 
       focus:outline-none 
       focus:ring-2 
@@ -46,7 +46,7 @@ const ProjectsDropdown = ({
     `,
   };
 
-  const {  projects, selectedProject } = useProjects();
+  const { projects, selectedProject } = useProjects();
   return (
     <div className="relative inline-block w-full sm:w-auto max-w-[300px]">
       <select
