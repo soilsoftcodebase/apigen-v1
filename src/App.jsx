@@ -21,28 +21,8 @@ import SettingsPage from "./Features/Settings/Pages/SettingsPage";
 import { ProjectProvider } from "./Contexts/ProjectContext";
 import { ToastContainer } from "react-toastify";
 
-import FeedbackForm from "./pages/FeedbackForm";
-import BugsReport from "./pages/BugsReport";
-// import ApiTests from "./pages/ApiTests";
-// import Performance from "./pages/Performance";
-// import TestCases from "./pages/TestCases";
-
 function App() {
   return (
-    // <Provider store={store}>
-    //   <Router>
-    //     <Routes>
-    //       <Route path="/login" element={<Login />} />
-    //       <Route path="/" element={<Layout />}>
-    //         <Route index element={<Navigate to="/dashboard" replace />} />
-    //         <Route path="dashboard" element={<Dashboard />} />
-    //         <Route path="api-tests" element={<ApiTests />} />
-    //         <Route path="performance" element={<Performance />} />
-    //         <Route path="test-cases" element={<TestCases />} />
-    //       </Route>
-    //     </Routes>
-    //   </Router>
-    // </Provider>
     <Provider store={store}>
       <ProjectProvider>
         <Router>
@@ -63,15 +43,11 @@ function App() {
               <Route path="runs" element={<RunsPage />} />
               <Route path="tests" element={<TestCasePage />} />
               <Route path="testdata" element={<TestDataPage />} />
-              <Route path="feedback" element={<FeedbackForm />} />
-              <Route path="bugs" element={<BugsReport />} />
               <Route
                 path="performance-tests"
                 element={<PerformanceTestPage />}
               />
               <Route path="settings" element={<SettingsPage />} />
-              {/* <Route path="performance" element={<Performance />} />
-            <Route path="test-cases" element={<TestCases />} /> */}
             </Route>
           </Routes>
           <ToastContainer
